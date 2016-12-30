@@ -1,0 +1,146 @@
+
+Ultimately, our goal is to make statements about the \textit{global} relationships which exist in the graph, using information which comes to us via \textit{local} relationships between nodes.
+
+\subsection{Preference Resolution from Local Relations}
+
+If a graph is not fully connected (some vertices lack edges), then it is possible for there to exist multiple sinks.
+If a graph is fully connected, however, then there can exist at most one sink (if there were two sinks, one must point towards the other: a contradiction $\rightarrow\leftarrow$).
+
+The first example we will consider is the most fundamental of preference resolution systems: the \textbf{plurality voting system}.
+In this system, entities (which we will call voters) are allowed to vote for one of $n$ candidates, and the candidate with the most votes win.
+
+To set up this system in the language of socrata graphs, we will define the following:
+Our \textit{access policy} is that every voter is allowed to cast one vote in the election.
+Each vote will be translated into $n-1$ socrata, with an edge pointing to the chosen candidate from every other candidate.
+For example, given three candidates $\{a, b, c\}$, a vote for $a$ would translate into the following:
+
+\begin{center}
+	
+\socrata{a}{b}
+
+\socrata{a}{c}
+	
+\end{center}
+
+We aggregate the socrata using the additive rule described above.
+The winner of the election will be the sink of the resulting graph.
+The presence of at least one sink is guaranteed by the structure of the access policy.
+Consider the following result: $a$ receives 10 votes, $b$ receives 7, and $c$ receives 3.
+We combine these into the following graph:
+
+\begin{center}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, -] (b) -- node[auto] {10 - 7} (a);
+\draw[ultra thick, -] (c) -- node[auto] {10 - 3} (a);
+\draw[ultra thick, -] (c) -- node[auto] {7 - 3} (b);
+\end{tikzpicture}
+\end{center}
+
+Then taking the differences and creating the directed edges:
+
+\begin{center}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, ->] (b) -- node[auto] {3} (a);
+\draw[ultra thick, ->] (c) -- node[auto] {7} (a);
+\draw[ultra thick, ->] (c) -- node[auto] {4} (b);
+\end{tikzpicture}
+\end{center}
+
+We run the sink-finding algorithm and return $a$, the winner.
+It is worth nothing how the complexity of this preference-resolution scheme is $O(n)$, the same as the complexity of simply taking the maximum of vote counts for $n$ candidates.
+
+What happens in the case of a tie?
+Let's say $b$ receives 10 votes:
+
+\begin{center}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, -] (b) -- node[auto] {10 - 10} (a);
+\draw[ultra thick, -] (c) -- node[auto] {10 - 3} (a);
+\draw[ultra thick, -] (c) -- node[auto] {10 - 3} (b);
+\end{tikzpicture}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, ->] (c) -- node[auto] {7} (a);
+\draw[ultra thick, ->] (c) -- node[auto] {7} (b);
+\end{tikzpicture}
+\end{center}
+
+In this case, we will observe two sinks in the resulting graph, representing two possible winners.
+This corresponds nicely with our intuition of what should happen in this case.
+
+\subsection{Preference Resolution from Global Relations}
+
+Earlier, we showed how the preference resolution problem can be as simple as finding a sink in a directed graph, an $O(n)$ operation.
+Without a guarantee of acyclicity, however, we must turn to alternative methods.
+Intuitively, we would like to say that a node which has a lot of incoming edges is preferred, even if that node possesses some number of outgoing edges.
+
+The simplest approach in this vein would be to take the difference of incoming and outgoing edges, and return the node with the largest difference.
+This algorithm, which runs in $O(m + n)$ time, captures local information between nodes, but incorporates no information about global relationships among nodes.
+
+\bigskip
+
+Google's first \textbf{PageRank} algorithm, designed by founders Sergey Brin and Larry Page, was designed to solve a similar problem \cite{brin}: given a directed graph of websites, can one determine which sites are most relevant for a given query?
+Brin and Page's solution was to model the web as a random directed graph, and to imagine a \say{random surfer} who would randomly click on links (represented as directed edges from one site to the next).
+As this surfer traversed the web, she would be more likely to arrive at pages which had more inbound links; these pages were \textit{preferred}.
+Links from preferred pages are worth more than links from peripheral pages, as the popularity of the preferred page meant it was more likely that a surfer would be travel elsewhere via that page.
+Brin and Page's paper describes PageRank as follows:
+
+\begin{quotation}
+	\textit{We assume page A has pages T1...Tn which point to it (i.e., are citations).
+	The parameter d is a damping factor which can be set between 0 and 1.
+	We usually set d to 0.85.
+	There are more details about d in the next section.
+	Also C(A) is defined as the number of links going out of page A.
+	The PageRank of a page A is given as follows:}
+	
+	\bigskip
+		
+	PR(A) = (1-d) + d (PR(T1)/C(T1) + ... + PR(Tn)/C(Tn))
+	
+	\bigskip
+	
+	\textit{Note that the PageRanks form a probability distribution over web pages, so the sum of all web pages’ PageRanks will be one.
+	PageRank or PR(A) can be calculated using a simple iterative algorithm, and corresponds to the principal eigenvector of the normalized link matrix of the web.}
+\end{quotation}
+
+The principle difference between the web graph of Sergey and Brin and the socrata graphs we consider here is the variable value associated with the edges.
+On the web, a link is a link; there is no notion of a link being worth \say{more} or \say{less}, apart from the page the link originated from.
+
+In our case, edges have weight independent of the popularity of their corresponding nodes.
+We can naturally interpret this weight as the strength of the relative preference, and so should seek to allocate preference mass according to the strength of these preferences.
+Using the notation of Brin and Page, we introduce a new term $W(A, T_i) \in \mathbb{R}^+$, corresponding to the (normalized) weight of the edge from $A$ to $T_i$:
+
+\[
+W(A, T_i) \triangleq \frac{w(A, T_i)}{\sum_{j=1}^n w(A, T_j)}
+\]
+
+Now, we present a modified PageRank, which we call \textbf{PrefRank}:
+
+\[
+PR(A) \leftarrow (1-d) + d \sum_{i=1}^n \frac{PR(T_i) \times W(A,T_i)}{C(T_i)}
+\]
+
+We use the right arrow instead of the equals sign to emphasize that this expression is an \textit{assignment}, updating the values associated with each node at each iteration.
+The normalization is important to ensure that the sum of the $PR$ scores remains constant over time.
+
+
+\subsection{Preference Structuring from Global Relations}
+
+The complexity of the algorithms discussed above are all, in some form, $O(f(n))$.
+Finding some way of reducing $n$ would allow all of these techniques to be applied more quickly.
+
+One way to reduce $n$ would be to identify elements of $A$ which are closely related, and to collapse them into \say{super answers} which can be treated as though they were single nodes in a graph.

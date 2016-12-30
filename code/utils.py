@@ -31,21 +31,12 @@ def make_B(K, probs=[.2]):
             B[g,h] = 1 - B[h,g]
     return B
             
-def get_interactions(X, V):
+def get_interactions(X):
+    V = max(X[:,1]) + 1
     I = np.zeros((V, V), dtype=int)
     for p, q, v in X:
         if v:
             I[p,q] += 1
         else:
             I[q,p] += 1
-
-#     for p in xrange(V):
-#         for q in xrange(p):
-#             if I[p,q] > I[q,p]:
-#                 I[p,q] = 1
-#                 I[q,p] = 0
-#             elif I[p,q] < I[q,p]:
-#                 I[p,q] = 0
-#                 I[q,p] = 1
-#             else: I[q,p] = I[p,q] = 0.5
     return I

@@ -3,16 +3,18 @@ from datetime import datetime
 import numpy as np
 from scipy.special import digamma, gammaln
 
-def train_mmsb(X, V, K, n_iter=300, print_i=False):
+def train_mmsb(X, K, n_iter=300, print_i=False):
     """X is an Nx3 matrix. Each row has the format:
     [smallIndex, bigIndex, bool(smallIndex -> bigIndex)]
     """
-    # Hyperparameters
-
-    alpha = 0.1 # Sparse prior
+    V = max(X[:,1]) + 1
     N = X.shape[0] # Number of interactions
 
-    # Variational parameters
+    ### Hyperparameters
+
+    alpha = 0.1 # Sparse prior
+    
+    ### Variational parameters
 
     # pi ~ dir(gamma) -- per-item prototype distribution
     gamma = np.zeros((K,V)) + (2. * N) / K
@@ -54,8 +56,7 @@ def train_mmsb(X, V, K, n_iter=300, print_i=False):
         a = digamma(gamma) - digamma(gamma.sum(axis=0)) # # E[ln pi], K V
         return a
     
-    def normalize(tensor):
-        # Log-sum-exp trick
+    def normalize(tensor): # Log-sum-exp trick
         xmax = tensor.max(axis=0) # Max across prototypes
         sum_exp = np.exp(tensor - xmax).sum(axis=0)
         normalizer = xmax + np.log(sum_exp) # Normalize over prototypes    
@@ -68,10 +69,6 @@ def train_mmsb(X, V, K, n_iter=300, print_i=False):
         num = (PHI[:,:,win_idx]).sum(axis=2) + PHI_rotate[:,:,loss_idx].sum(axis=2)
         denom = (PHI + PHI_rotate).sum(axis=2)
         B = num / denom
-
-        for g in xrange(K):
-            B[g,g] = 0.5 # diagonal
-
         return B
 
     def update_gamma(): # per-item prototype distribution
@@ -79,9 +76,8 @@ def train_mmsb(X, V, K, n_iter=300, print_i=False):
         for p in xrange(V):
             pq_idx = X[:,0] == p
             qp_idx = X[:,1] == p
-            gamma[:,p] += phi_pq[:,pq_idx].sum(axis=1) # Sum rows (interactions)
-            gamma[:,p] += phi_qp[:,qp_idx].sum(axis=1) # Sum rows (interactions)
-
+            gamma[:,p] += phi_pq[:,pq_idx].sum(axis=1) # Sum interactions
+            gamma[:,p] += phi_qp[:,qp_idx].sum(axis=1)
         return gamma
 
     def update_phi(which): # per-interaction prototype distribution
@@ -99,7 +95,7 @@ def train_mmsb(X, V, K, n_iter=300, print_i=False):
         if which == 'pq':
             F = np.swapaxes(F, 0, 1) # G H N
             
-        phi = (PHI * F).sum(axis=1) # K N (Sum H for pq, G for qp)
+        phi = (PHI * F).sum(axis=1) # K N (sum H for pq, G for qp)
         phi = phi + a
         phi = normalize(phi)
         
@@ -122,8 +118,7 @@ def train_mmsb(X, V, K, n_iter=300, print_i=False):
         a_qp = stretch_gamma(a, 'qp') # K N
         dummy_phi_pq = np.where(phi_pq > 0, phi_pq, 10**-100) # Avoid np.log(0)
         dummy_phi_qp = np.where(phi_qp > 0, phi_qp, 10**-100)
-        elbo += (phi_pq * a_pq).sum()
-        elbo += (phi_qp * a_qp).sum()
+        elbo += (phi_pq * a_pq).sum() + (phi_qp * a_qp).sum()
         elbo -= (phi_pq * np.log(dummy_phi_pq)).sum()
         elbo -= (phi_qp * np.log(dummy_phi_qp)).sum()
         
