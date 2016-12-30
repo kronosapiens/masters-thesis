@@ -37,7 +37,7 @@ We anticipate that these entities will often be people. Later in this work we wi
 
 \bigskip
 
-Having introduced questions, answers, and entities, we are ready to introduce the \say{socrata}, conceived of as a basic unit of subjective experience. As the name suggests, a socrata represents an \textit{answer to a question}. Socrata have five components:
+Having introduced questions, answers, and entities, we are ready to introduce the \say{preference}, conceived of as a basic unit of subjective experience. As the name suggests, a preference represents an \textit{answer to a question}. Preferences have five components:
 
 \begin{enumerate}
 	\item A question object $Q$.
@@ -49,7 +49,7 @@ Having introduced questions, answers, and entities, we are ready to introduce th
 
 It is not immediately obvious how we might operate on this representation. Recalling that preferences are only defined relative to a question $Q$, we can make $Q$ implicit. Further, for the moment let us assume that we are interested only in the preferences of a single entity $e$.
 
-Now, we see that the salient attributes of a socrata are the two options $\alpha, \beta$, as well as the preference $p$. If we imagine $\alpha$ and $\beta$ as nodes, then $p$ can be represented as a directed edge between the two. Specifically, we create an edge $(\beta, \alpha)$ if $p = -1$ or $(\alpha, \beta)$ if $p = 1$ (the edge flows from loser to winner):
+Now, we see that the salient attributes of a preference are the two options $\alpha, \beta$, as well as the preference $p$. If we imagine $\alpha$ and $\beta$ as nodes, then $p$ can be represented as a directed edge between the two. Specifically, we create an edge $(\beta, \alpha)$ if $p = -1$ or $(\alpha, \beta)$ if $p = 1$ (the edge flows from loser to winner):
 
 \begin{center}
 \begin{tikzpicture}[node distance=3cm]
@@ -59,7 +59,7 @@ Now, we see that the salient attributes of a socrata are the two options $\alpha
 \end{tikzpicture}
 \end{center}
 
-This graphical representation is desirable, as it suggests a natural way of aggregating socrata. Imagine we have $A = \{a, b, c, d\}$. The entity generates the following socrata:
+This graphical representation is desirable, as it suggests a natural way of aggregating preference. Imagine we have $A = \{a, b, c, d\}$. The entity generates the following preferences:
 
 \begin{center}
 
@@ -73,7 +73,7 @@ This graphical representation is desirable, as it suggests a natural way of aggr
 
 \end{center}
 
-We can aggregate these socrata into the following \textit{socrata graph} $S$:
+We can aggregate these preferences into the following \textit{preference graph} $S$:
 
 \begin{center}
 \begin{tikzpicture}[node distance=3cm]
@@ -88,7 +88,7 @@ We can aggregate these socrata into the following \textit{socrata graph} $S$:
 \end{tikzpicture}
 \end{center}
 
-Aggregating socrata across multiple entities presents little difficulty.
+Aggregating preferences across multiple entities presents little difficulty.
 If we have entity $\alpha$ generating the following (an ordered preference of $a, b, c$):
 
 \begin{center}
@@ -114,7 +114,7 @@ And entity $\beta$ generating the following (an ordered preference of $a, c, b$)
 \end{center}
 
 
-We can assign each socrata a weight of 1 and combine the edges.
+We can assign each preference a weight of 1 and combine the edges.
 Parallel edges sum, while antiparallel edges cancel:
 
 \begin{center}
@@ -138,7 +138,7 @@ Selecting $b$ would cause both entities to have their second preference, a forfe
 Selecting $a$ or $c$, on the other hand, would cause one entity to have its first preference, and the other third --- a forfeiture of two items.
 In a sense, this pair of opposing preferences render all answers equal.
 
-Observe what happens in the corresponding socrata graph:
+Observe what happens in the corresponding preference graph:
 
 \begin{center}
 \begin{tikzpicture}[node distance=3cm]
@@ -167,28 +167,9 @@ The answers are disconnected; we interpret as an absence of preference.
 For an \textit{individual} entity (with an emphasis on the literal meaning of \say{individual} as non-divisible), preference is non-numeric.
 Populations have magnitudes, however, and so we can comfortably reason in terms of sums and ratios when considering groups of entities.
 
-\subsection{Connections to Social Choice Theory}
-
-Those readers familiar with the economics literature will see many parallels to the Social Choice Theory presented in \cite{arrow}.
-In this work, Arrow proposed three criteria for good voting systems, and went on to famously prove that no voting system could exist which satisfied all three.
-These criteria are:
-
-\begin{itemize}
-	\item \textbf{Unanimity}: if all voters prefer a to b, the group prefers a to b.
-	\item \textbf{Non-dictatorship}: there is no individual voter whose preferences always prevail.
-	\item \textbf{Independent of Irrelevant Alternatives (IIA)}: the group preference between a and b should be determined only by individual preferences between a and b (and not, for example, c).
-\end{itemize}
-
-Arrows impossibility theorem shows that these three criteria taken together can lead to contradiction.
-We will give a sketch of the proof here (inspired by ), as well as reinterpret the contradiction through the framework of preference graphs.
-
-\bigskip
-
-First, imagine we have a set $V$ of $N$ voters divided into three sets as follows: $S_1 = V_1, ..., V_{k-1}$, $K = V_k$, and $S_2 = v_{k+1}, ..., V_N$.
-
 \subsection{A Probabilistic View}
 
-Let us now consider some structural properties of socrata graphs, and interpret them through the lens of preference resolution.
+Let us now consider some structural properties of preference graphs, and interpret them through the lens of preference resolution.
 
 In the language of computer science, we denote graphs as $G = (V, E)$, with graph $G$ consisting of some set $V$ of \textit{vertices} (or \textit{nodes}) and some set $E$ of \textit{edges} between the vertices.
 Edges can be directed or undirected, and are denoted $(u,v) \in E$, with $u, v \in V$.
@@ -196,7 +177,7 @@ Edges can be directed or undirected, and are denoted $(u,v) \in E$, with $u, v \
 When analyzing complexity, we use $n = |V|$, the number of vertices, and $m = |E|$, the number of edges.
 Since an edge may exist between any pair of edges (even a self-pair), we see that $m \leq n^2$.
 Note that $(u,v), (v,u), (u,u)$ may count as three separate edges.
-In our case, there are $\frac{n^2-n}{2}$ possible socrata (per entity).
+In our case, there are $\frac{n^2-n}{2}$ possible preferences (per entity).
 
 A vertex can be called a \textit{sink} if all of its edges point inward towards it.
 In the context of preference, a sink is an option that is preferred over all others.
@@ -362,7 +343,7 @@ We raise this point to underscore that the presence of cycles does not imply the
 What is \say{structure}?
 To understand what constitutes structure, it will be helpful to consider an example of the absence of structure: a completely random graph.
 To describe this graph, we will introduce some concepts of probability.
-Since socrata graphs consist of directed edges, we will say that a \say{completely random} graph is one where, for any two vertices, there is an equal probability of the edge between them pointing in one direction or the other.
+Since preference graphs consist of directed edges, we will say that a \say{completely random} graph is one where, for any two vertices, there is an equal probability of the edge between them pointing in one direction or the other.
 Formally, we say that edges are Bernoulli distributed:
 
 \[
@@ -412,7 +393,7 @@ Further, it can be shown that this steady state distribution, denoted $x_{\infty
 The normalization of $M$ ensures that the principal eigenvector, denoted $\lambda_1$, is always equal to 1.
 
 Interpreting $x_{\infty}$ as a distribution over items, then the components of $x_{\infty}$ with the largest values (probability) can be seen as the ``most preferred'' items (\cite{paisley}).
-The Perron–Frobenius theorem forms the foundation of these results, and use of this method has a long history(\cite{keener:1993}) and many applications, including the ranking of sports teams (\cite{landau:1915}) and websites (\cite{brin}).
+The Perron-Frobenius theorem forms the foundation of these results, and use of this method has a long history (\cite{keener:1993}) and many applications, including the ranking of sports teams (\cite{landau:1915}) and websites (\cite{brin}).
 
 \bigskip
 
@@ -425,3 +406,93 @@ With these concepts in hand, we can now ask what these steady states might look 
 % END LINALG FIGURES
 
 This series of basic examples illustrate how the language of graphs and matrices allows us to make meaningful statements about preference in the presence of challenging structures like cycles, which manifest as contradictions when represented in terms of linear ordering.
+
+\FloatBarrier
+
+\subsection{Connections to Social Choice Theory}
+
+Those readers familiar with the economics literature will see many parallels to the Social Choice Theory presented in \cite{arrow}.
+In this work, Arrow proposed three criteria for good voting systems, and went on to famously prove that no voting system could exist which satisfied all three.
+These criteria are:
+
+\begin{itemize}
+	\item \textbf{Unanimity}: if all voters prefer a to b, the group prefers a to b.
+	\item \textbf{Non-dictatorship}: there is no individual voter whose preferences always prevail.
+	\item \textbf{Independent of Irrelevant Alternatives (IIA)}: the group preference between a and b should be determined only by individual preferences between a and b (and not, for example, c).
+\end{itemize}
+
+Arrows impossibility theorem shows that these three criteria taken together can lead to contradiction.
+We will give a sketch of the proof here (inspired by \cite{geanakoplos:2005}), as well as reinterpret the contradiction through the framework of preference graphs.
+
+\bigskip
+
+First, imagine we have a set $V$ of $N$ voters, asked to each submit a linear ordering of three items: $a, b$, and $c$.
+The voters are partitioned into three sets as follows: $S_1 = \{V_1, ..., V_{k-1}\}$, $K = \{V_k\}$, and $S_2 = \{v_{k+1}, ..., V_N\}$, and all voters in each set always vote the same way.
+Set $K$ consists of one voter, $V_k$, who we will refer to as the ``pivotal voter'' in that if $V_k$ votes the same way as either $S_1$ or $S_2$, then that preference prevails for the group.
+In Figure \ref{fig:impossiblity_tables}, we see a sequence of three states of preference.
+A contradiction emerges in the third state, when the preference reversals of $S_1$ and $S_2$ have no impact on the group preference.
+
+\begin{figure}[!htb]
+\centering
+\begin{tabular}{ c | c | c | c }
+ $S_1$ & $K$ & $S_2$ & Group \\ 
+ \hline
+ b & a & a & a \\ 
+ c & b & b & b \\  
+ a & c & c & c
+\end{tabular}
+ $\rightarrow$
+\begin{tabular}{ c | c | c | c }
+ $S_1$ & $K$ & $S_2$ & Group \\ 
+ \hline
+ b & \textbf{b} & a & \textbf{b} \\ 
+ c & \textbf{a} & b & \textbf{a} \\  
+ a & c & c & c
+\end{tabular}
+ $\rightarrow$
+\begin{tabular}{ c | c | c | c }
+ $S_1$ & $K$ & $S_2$ & Group \\ 
+ \hline
+ \textbf{c} & b & a & b \\ 
+ \textbf{b} & a & \textbf{c} & a \\  
+ a & c & \textbf{b} & c
+\end{tabular}
+\caption{Sequence of preference orderings for voter subsets $S_1$, $K$, and $S_2$, and final group preference. $V_k$ is a dictator in that the group prefers $b > c$ even though both $S_1$ and $S_2$ prefer $c > b$.}
+\label{fig:impossiblity_tables} 
+\end{figure}
+
+In Figure \ref{fig:impossiblity_graphs}, we see the same sequence of preferences represented graphically.
+In this view, we see that the ``paradox'' is simply the inability to represent cyclical preference as a linear ordering.
+We also see how the IIA assumption becomes problematic, as the ordering of $b > a$ and $a > c$ inhibits the group ordering of $c > b$.
+If we relax the IIA assumption and allow cycles, we see that the final preference graph of this proof has the same structure as our example graph in Figure \ref{fig:linalg_6}, and therefore has a steady state distribution of $c > a > b$.
+Note that the eigenvector-based methods described earlier imply IIA relaxation.
+
+\begin{figure}[!htb]
+\centering
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, <-] (a) -- node[auto] {1} (b);
+\draw[ultra thick, <-] (a) -- node[auto] {1} (c);
+\draw[ultra thick, <-] (b) -- node[auto] {5} (c);
+\end{tikzpicture}\quad
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, <-] (b) -- node[auto] {1} (a);
+\draw[ultra thick, <-] (a) -- node[auto] {1} (c);
+\draw[ultra thick, <-] (b) -- node[auto] {5} (c);
+\end{tikzpicture} \quad
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, <-] (b) -- node[auto] {1} (a);
+\draw[ultra thick, <-] (a) -- node[auto] {1} (c);
+\draw[ultra thick, <-] (c) -- node[auto] {3} (b);
+\end{tikzpicture}
+\caption{Same sequence of preference orderings, shown as preference graphs. We set $|S_1| = |S_2| = 2$. $S_1$ and $S_2$'s reversal of preference between $b$ and $c$ in the third graph creates a cycle.}
+\label{fig:impossiblity_graphs} 
+\end{figure}
