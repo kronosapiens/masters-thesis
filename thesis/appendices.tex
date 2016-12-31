@@ -1,0 +1,126 @@
+\subsection{Details of MMSB Derivation}
+\label{sec:mmsb_appendix}
+
+\subsubsection{Joint probability and ELBO}
+
+Here is the joint probability for this model:
+\begin{eqnarray*}
+&p(Y, \pi_{1:P}, Z_{p \rightarrow q}, Z_{q \rightarrow p} | B, \alpha) = \\
+&\prod_{n=1}^N p(y_n | z_{p_n \rightarrow q_n}, z_{q_n \rightarrow p_n} , B)
+p(z_{p_n \rightarrow q_n} | \pi_{p_n}) p(z_{q_n \rightarrow p_n} | \pi_{q_n})
+\prod_{p = 1}^V p(\pi_p| \alpha)
+\end{eqnarray*}
+
+Inference will involve learning posterior values for $\pi_{1:P}, Z_{p \rightarrow q}, Z_{q \rightarrow p}, B$.
+We will learn $\pi_{1:P}, Z_{p \rightarrow q}, Z_{q \rightarrow p}$ through variational inference, and $B$ through variational expectation-maximization (as it is not a random variable).
+
+We introduce the following $	q$ distributions for the latent variables:
+\begin{eqnarray*}
+q(\pi_p) &\sim& Dirichlet(\gamma_p) \\ 
+q(z_{p_n \rightarrow q_n}) &\sim& Multinomial(\phi_{p_n \rightarrow q_n}) \\
+q(z_{q_n \rightarrow p_n}) &\sim& Multinomial(\phi_{q_n \rightarrow p_n}) 
+\end{eqnarray*}
+
+Note that the matrix $\Gamma$ will be $V \times K$, while matrices $\Phi_{p \rightarrow q}$ and $\Phi_{q \rightarrow p}$ are $N \times K$.
+We will learn all parameters by maximizing the ELBO:
+\begin{eqnarray*}
+&ELBO&(\Gamma,\Phi_{p \rightarrow q},\Phi_{q \rightarrow p};Y, \pi_{1:P}, Z_{p \rightarrow q}, Z_{q \rightarrow p},B,\alpha) = \\
+&\mathbb{E}_q&\bigg[\sum_{n=1}^N \bigg(\log p(y_n | z_{p_n \rightarrow q_n}, z_{q_n \rightarrow p_n} , B)
++ \log p(z_{p_n \rightarrow q_n} | \pi_{p_n})
++ \log p(z_{q_n \rightarrow p_n} | \pi_{q_n})\bigg) \\
+&&+ \sum_{p = 1}^V \log p(\pi_p| \alpha)\bigg] \\
+- &\mathbb{E}_q&\bigg[\sum_{n=1}^N \bigg( \log q(z_{p_n \rightarrow q_n} | \phi_{p_n \rightarrow q_n})
++ \log q(z_{q_n \rightarrow p_n} | \phi_{q_n \rightarrow p_n})\bigg) 
++ \sum_{p = 1}^V \log q(\pi_p| \gamma_p)\bigg]
+\end{eqnarray*}
+
+The updates for $\gamma, \phi_{p \rightarrow q}, \phi_{q \rightarrow p}$ are exactly as given in \cite{airoldi:2008}, with the modification that we iterate over $N$ observations, rather than $V \times V$ pairs.
+
+\subsubsection{Learning $B$ Matrix }
+
+Our model differs from the MMSB specified by \cite{airoldi:2008} , in that we introduce restrictions on the matrix B.
+The first thing to note is that the symmetric restriction on B implies that we must learn and store only the upper-triangle of the matrix; the lower-triangle can be generated from the upper.
+We formalize this symmetry with the following likelihood distribution on $y_n$ (with $g$ referring to the index corresponding to the one-hot vector $z_{p_n \rightarrow q_n}$, and $h$ corresponding to the same for $z_{q_n \rightarrow p_n}$):
+\begin{eqnarray*}
+&& p(y_n | z_{p_n \rightarrow q_n} = g, z_{q_n \rightarrow p_n} = h, B) \\
+&=& p(y_n | B_{gh})^{\mathbbm{1}[g < h]}p(y_n | 1 - B_{hg})^{\mathbbm{1}[g \geq h]} \\
+&=& \bigg(B_{gh}^{y_n}(1-B_{gh})^{(1-y_n)}\bigg)^{\mathbbm{1}[g < h]} \bigg((1-B_{hg})^{y_n}B_{hg}^{(1-y_n)}\bigg)^{\mathbbm{1}[g \geq h]}
+\end{eqnarray*}
+
+Values of $B$ are learned through variational EM, in which we set the values using maximum-likelihood, using the values of the variational parameters learned during CAVI.
+To derive the update for $B$, we take the gradient of the ELBO with respect to $B$, set it to $0$, and solve.
+Note that we only need to consider the terms in the ELBO with depend on $B$; we hide all other terms in the constant $C$.
+Additionally, we let $g_n = z_{p_n \rightarrow q_n}$, and $h_n = z_{q_n \rightarrow p_n}$:
+
+\begin{eqnarray*}
+ELBO(B) &=& C + \mathbb{E}_q\bigg[\sum_{n=1}^N \log p(y_n | z_{p_n \rightarrow q_n}, z_{q_n \rightarrow p_n} , B)\bigg] \\
+&=& C+ \mathbb{E}_q\bigg[\sum_{n=1}^N \mathbbm{1}[g_n < h_n]\bigg(y_n \log(B_{g_n h_n}) + (1-y_n) \log(1-B_{g_n h_n})\bigg) \\
+&&+ \mathbbm{1}[g_n \geq h_n]\bigg(y_n \log(1-B_{h_n g_n}) + (1-y_n) \log(B_{h_n g_n})\bigg) \bigg] \\
+&=& C + \sum_{n=1}^N \bigg[ \sum_{g_n < h_n}\bigg( p(g_n)p(h_n) \big(y_n \log(B_{g_n h_n}) + (1-y_n) \log(1-B_{g_n h_n})\big) \bigg) \\
+&&+  \sum_{g_n \geq h_n}\bigg( p(g_n)p(h_n) \big( y_n \log(1-B_{h_n g_n}) + (1-y_n) \log(B_{h_n g_n}) \big) \bigg) \bigg] \\
+&=& C + \sum_{n=1}^N \bigg[ \sum_{g_n < h_n}\bigg( \phi_{p_n \rightarrow q_n, g_n} \phi_{q_n \rightarrow p_n, h_n} \big(y_n \log(B_{g_n h_n}) + (1-y_n) \log(1-B_{g_n h_n})\big) \bigg) \\
+&&+  \sum_{g_n \geq h_n}\bigg( \phi_{p_n \rightarrow q_n, g_n} \phi_{q_n \rightarrow p_n, h_n} \big( y_n \log(1-B_{h_n g_n}) + (1-y_n) \log(B_{h_n g_n}) \big) \bigg) \bigg] 
+\end{eqnarray*}
+
+We now take the derivative with respect to $B_{gh}$, assuming that $g < h$:
+\begin{eqnarray*}
+\frac{\partial ELBO}{\partial B_{gh}} &=& \sum_{n=1}^N \bigg[ 
+\phi_{p_n \rightarrow q_n, g} \phi_{q_n \rightarrow p_n, h} \bigg(\frac{y_n}{B_{gh}} - \frac{1-y_n}{1-B_{gh}}\bigg) \\
+&+& \phi_{p_n \rightarrow q_n, h} \phi_{q_n \rightarrow p_n, g} \bigg(\frac{-y_n}{1-B_{gh}} + \frac{1-y_n}{B_{gh}}\bigg) \bigg]
+\end{eqnarray*}
+
+Setting this expression to $0$, and solving for $B_{gh}$, gives the following closed-form solution:
+\begin{eqnarray*}
+\hat{B}_{gh} = \frac{\sum_{n=1}^N \phi_{p_n \rightarrow q_n, g} \phi_{q_n \rightarrow p_n, h} y_n + \phi_{p_n \rightarrow q_n, h} \phi_{q_n \rightarrow p_n, g}(1-y_n)}{\sum_{n=1}^N \phi_{p_n \rightarrow q_n, g} \phi_{q_n \rightarrow p_n, h} + \phi_{p_n \rightarrow q_n, h} \phi_{q_n \rightarrow p_n, g}}
+\end{eqnarray*}
+
+\subsection{Datasets}
+\label{sec:datasets}
+
+\subsubsection{MovieLens-100k}
+We now describe the way we generate pairwise preference data from the 
+MovieLens-100k dataset.  At a high level, if a user $u$ rated $M_u$ movies,
+we randomly sample $10*M_u$ pairs of movies rated by that user.  For each
+randomly sampled pair, if the user gave different ratings to the 2 movies,
+we add the user's pairwise preference to our dataset.  The exact algorithm
+is shown in below.
+Importantly, we run the above process for both the training data and the test
+data.  We use the file `u5.base' as our training set, and `u5.test' as our test
+set, from the MovieLens-100k dataset, which we downloaded at 
+\url{http://grouplens.org/datasets/movielens/100k/}.  
+There are 80,000 ratings in this training
+set, and 20,000 ratings in this test set.
+After running the above procedure on the training set, we separate $20\%$ of the
+data as heldout, and use the rest for training.
+
+\subsubsection{Data-generating Algorithm for MovieLens data}
+
+For a given user $u$, let $M_u$ denote the set of movies rated by this user, and let
+$r_{um}$ denote the rating user $u$ gave to movie $m$.
+
+\begin{itemize}
+	\item Let $D = \emptyset$, $n = 1$.
+	\item For each user $u \in U$
+	\begin{itemize}
+		\item For $n \in $\{1, ..., $10\cdot|M_u|\}$
+		\begin{itemize}
+			\item Randomly select $p_n, q_n \in M_u$, where $p_n < q_n$.
+			\item Let $x_n = (p_n, q_n, u_n)$, and $y_n = \mathbbm{1}  \left[r_{up_n} < r_{uq_n} \right]$
+			\item If $(x_n,y_n) \notin D$ and $r_{up_n} \neq r_{uq_n}$
+			\begin{itemize}
+				\item $D = D \cup (x_n,y_n)$.
+				\item $n=n+1$.
+			\end{itemize}
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{All Our Ideas}
+All Our Ideas is an online platform enabling for the creation and distribution of ``wiki surveys'' (\cite{salganik:2015}) --- in which users are prompted to make pairwise preferences with items drawn from a dynamic answer pool.
+
+As an academic project, All Our Ideas makes raw survey data available to download.
+These data include information about the candidate answers and every comparison made, giving hashed IP addresses to preserve user anonymity.
+
+This survey we consider, which ran over the summer of 2012, was used to answer a critical question: what beer to serve at the author's undergraduate going-away party.
+The survey considered 27 beers and had 1468 responses from 17 IP addresses, with a majority of responses (1244) coming from a single IP address (not the author's).
+

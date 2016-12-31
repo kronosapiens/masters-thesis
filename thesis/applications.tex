@@ -1,17 +1,23 @@
 
 Ultimately, our goal is to make statements about the \textit{global} relationships which exist in the graph, using information which comes to us via \textit{local} relationships between nodes.
+Arrow's IIA criteria requires the consideration of local relationships only, but as we have seen, this criteria is problematic in the presence of cyclic preference structure.
 
-\subsection{Preference Resolution from Local Relations}
+The graphical approach taken here relaxes this criterion and considers all items and preferences collectively.
+However, accounting for global relationships between nodes (relationships involving three or more nodes) is computationally challenging due to the rapid increase in the number of subsets to consider.
+For example, a graph of ten items has 45 pairs, 120 triples, and 210 sets of four.
+Fully accounting for all possible interactions among items will likely be computationally prohibitive for large graphs; as a result, techniques for approximately learning preference structure, or for pruning or otherwise constraining the number of items, will become valuable.
+
+\subsection{Linear-Time Methods}
 
 If a graph is not fully connected (some vertices lack edges), then it is possible for there to exist multiple sinks.
-If a graph is fully connected, however, then there can exist at most one sink (if there were two sinks, one must point towards the other: a contradiction $\rightarrow\leftarrow$).
+If a graph is fully connected, however, then there can exist at most one sink. \textbf{Proof}: if there were two sinks, one must point towards the other: a contradiction $\rightarrow\leftarrow$.
 
 The first example we will consider is the most fundamental of preference resolution systems: the \textbf{plurality voting system}.
 In this system, entities (which we will call voters) are allowed to vote for one of $n$ candidates, and the candidate with the most votes win.
 
-To set up this system in the language of socrata graphs, we will define the following:
+To set up this system in the language of preference graphs, we will define the following:
 Our \textit{access policy} is that every voter is allowed to cast one vote in the election.
-Each vote will be translated into $n-1$ socrata, with an edge pointing to the chosen candidate from every other candidate.
+Each vote will be translated into $n-1$ preferences, with an edge pointing to the chosen candidate from every other candidate.
 For example, given three candidates $\{a, b, c\}$, a vote for $a$ would translate into the following:
 
 \begin{center}
@@ -22,7 +28,7 @@ For example, given three candidates $\{a, b, c\}$, a vote for $a$ would translat
 	
 \end{center}
 
-We aggregate the socrata using the additive rule described above.
+We aggregate the preferences using the additive rule described above.
 The winner of the election will be the sink of the resulting graph.
 The presence of at least one sink is guaranteed by the structure of the access policy.
 Consider the following result: $a$ receives 10 votes, $b$ receives 7, and $c$ receives 3.
@@ -82,22 +88,30 @@ Let's say $b$ receives 10 votes:
 In this case, we will observe two sinks in the resulting graph, representing two possible winners.
 This corresponds nicely with our intuition of what should happen in this case.
 
-\subsection{Preference Resolution from Global Relations}
+\bigskip
 
 Earlier, we showed how the preference resolution problem can be as simple as finding a sink in a directed graph, an $O(n)$ operation.
 Without a guarantee of acyclicity, however, we must turn to alternative methods.
 Intuitively, we would like to say that a node which has a lot of incoming edges is preferred, even if that node possesses some number of outgoing edges.
 
-The simplest approach in this vein would be to take the difference of incoming and outgoing edges, and return the node with the largest difference.
-This algorithm, which runs in $O(m + n)$ time, captures local information between nodes, but incorporates no information about global relationships among nodes.
+The simplest approach in this vein would be rank items by the value of their incoming edges, with the winner being the item which satisfies $argmax_{v \in V}[in(v)]$.
+If the preferences are input as ordered rankings, this method is equivalent to the \textbf{Borda count} election system, a method used in practice by governments today (\cite{reilly:2002}).
 
 \bigskip
 
-Google's first \textbf{PageRank} algorithm, designed by founders Sergey Brin and Larry Page, was designed to solve a similar problem \cite{brin}: given a directed graph of websites, can one determine which sites are most relevant for a given query?
+A slight variation on this approach would be to take the difference of incoming and outgoing edges, and return the node with the largest difference.
+If preferences are input as ordered rankings of all items, this method is equivalent to the method of ranking only the incoming edges (for any pair, the sum of incoming and outgoing edges is always equal to the number of votes, therefore $argmax_{v \in V} [in(v) - out(v)] =  argmax_{v \in V}[in(v)]$).
+If there is a different access policy, this method may return different results.
+
+These algorithms, which both run in $O(m + n)$ (linear) time, utilize local (pairwise) information between nodes, but incorporate no information about global relationships among nodes.
+
+\subsection{Eigenvector Methods}
+
+Google's first \textbf{PageRank} algorithm, designed by founders Sergey Brin and Larry Page, was designed to solve a similar problem: given a directed graph of websites, can one determine which sites are most relevant for a given query?
 Brin and Page's solution was to model the web as a random directed graph, and to imagine a \say{random surfer} who would randomly click on links (represented as directed edges from one site to the next).
 As this surfer traversed the web, she would be more likely to arrive at pages which had more inbound links; these pages were \textit{preferred}.
 Links from preferred pages are worth more than links from peripheral pages, as the popularity of the preferred page meant it was more likely that a surfer would be travel elsewhere via that page.
-Brin and Page's paper describes PageRank as follows:
+\cite{brin} describes PageRank as follows:
 
 \begin{quotation}
 	\textit{We assume page A has pages T1...Tn which point to it (i.e., are citations).
@@ -117,7 +131,7 @@ Brin and Page's paper describes PageRank as follows:
 	PageRank or PR(A) can be calculated using a simple iterative algorithm, and corresponds to the principal eigenvector of the normalized link matrix of the web.}
 \end{quotation}
 
-The principle difference between the web graph of Sergey and Brin and the socrata graphs we consider here is the variable value associated with the edges.
+The principle difference between the web graph of Brin and Page and the preference graphs we consider here is the variable value associated with the edges.
 On the web, a link is a link; there is no notion of a link being worth \say{more} or \say{less}, apart from the page the link originated from.
 
 In our case, edges have weight independent of the popularity of their corresponding nodes.
@@ -137,10 +151,211 @@ PR(A) \leftarrow (1-d) + d \sum_{i=1}^n \frac{PR(T_i) \times W(A,T_i)}{C(T_i)}
 We use the right arrow instead of the equals sign to emphasize that this expression is an \textit{assignment}, updating the values associated with each node at each iteration.
 The normalization is important to ensure that the sum of the $PR$ scores remains constant over time.
 
+This approach differs from the eigenvector methods described earlier in that self-edges are not added.
 
-\subsection{Preference Structuring from Global Relations}
+\subsubsection{Empirical Results}
+
+We evaluate this algorithm on simulated data as follows.
+
+For $V$ items and preference strength $B$:
+
+\begin{itemize}
+	\item for $n \in \{1, ..., N\}$:
+	\begin{itemize}
+		\item Draw $p_n, q_n$ randomly from $V$.
+		\item Draw $\mathbbm{1}[p_n < q_n] \sim Bernoulli(B)$
+	\end{itemize}
+\end{itemize}
+
+We assess quality of ordering with Spearman's footrule (as discussed in \cite{jordan}), a sum of the per-item position displacements between true ranking and recovered ranking (Figure \ref{fig:pr_0}).
+
+\begin{figure}[!htb]
+\includegraphics[width=	7cm]{images/pr_100}
+\hfill
+\includegraphics[width=7.2cm]{images/pr_1000}
+\caption{Spearman footrule as a function of number of observations, varying preference strengths B. Left plot is V=100, right is V=1000.}
+\label{fig:pr_0} 
+\end{figure}
+
+\subsection{Bayesian Methods}
 
 The complexity of the algorithms discussed above are all, in some form, $O(f(n))$.
 Finding some way of reducing $n$ would allow all of these techniques to be applied more quickly.
 
-One way to reduce $n$ would be to identify elements of $A$ which are closely related, and to collapse them into \say{super answers} which can be treated as though they were single nodes in a graph.
+\bigskip
+
+One way to reduce $n$ would be to identify elements of $V$ which are closely related, and to collapse them into more general ``categories'' or ``prototypes,'' which can be treated as though they were single nodes in a graph.
+\cite{rosch:1973} provides theoretical justification for this approach, arguing that human cognition utilizes abstract ``prototypes'' in order to reason heuristically about the world.
+Identifying these prototypes is conceptually similar to identifying other types of graphical structures, such as communities in social networks.
+
+Community-finding is a major problem in computer science, and much work has been done on this problem.
+Here we present a model, based on the Mixed-Membership Stochastic Blockmodel (MMSB) of \cite{airoldi:2008}.
+This is a ``Bayesian model'' in that we first assert a model for our data, in which latent factors (hidden variables) interact and ultimately bring about the data we observe.
+Inference in this model amounts to learning the optimal (``posterior'') values of these hidden variables, based on the data.
+
+
+\subsubsection{Model Specification}
+
+In this model, we assume each item is perceived as a mixture of one or more abstract ``prototypes''.
+We then assume there is a fixed ``interaction matrix'' $B$, governing preferences between prototypes, where $B_{gh}$ indicates that probability that an item of prototype $g$ is preferred over an item of prototype $h$.
+
+\bigskip
+
+The generative process is as follows:
+\begin{itemize}
+	\item For items $p \in V$:
+	\begin{itemize}
+		\item Draw a $K$-dimensional membership vector $\pi_p \sim Dirichlet(\alpha)$.
+	\end{itemize}
+	\item For each observation $x_n = (p_n, q_n, y_n) \in X$:
+	\begin{itemize}
+		\item Draw item type $z_{p_n \rightarrow q_n} \sim Multinomial(\pi_{p_n})$
+		\item Draw item type $z_{q_n \rightarrow p_n} \sim Multinomial(\pi_{q_n})$
+		\item Draw $y_n \sim Bernoulli(z_{p_n \rightarrow q_n}^TBz_{q_n \rightarrow p_n})$
+	\end{itemize}
+\end{itemize}
+
+
+The MMSB we propose extends the work of \cite{airoldi:2008} by imposing symmetric structure on the matrix $B$.
+Specifically, we enforce that $B_{gh} = 1-B_{hg} \; \forall g,h$ (note that this implies $B_{gg}= 0.5 \; \forall g$).
+Unlike other mixed-membership stochastic blockmodels, which emphasize intra-community connective patterns, our model exclusively considers inter-community connective patterns.
+
+This model does not attempt to learn distinct preferences per entity.
+This was intentional, as this model is attempting to capture and represent preference in aggregate.
+That said, this work could be extended by learning a different interaction matrix $B$
+per user.
+We leave this for future work.
+
+\subsubsection{Inference}
+
+Our goal is to learn posterior values for $\pi_p, z_{p_n \rightarrow q_n}, z_{q_n \rightarrow p_n}$, and $B$.
+$\pi_p, z_{p_n \rightarrow q_n}$, and $z_{q_n \rightarrow p_n}$ are random variables, and we will learn posterior values via mean-field variational inference (\cite{wainwright}, \cite{blei:2016}).
+$B$ is a matrix of parameters, and so we learn posterior values via variational Expectation-Maximization.
+
+\bigskip
+
+We first assume the following posterior ``$q$'' distributions $q(\pi_p), q(z_{p_n \rightarrow q_n})$, and $q(z_{q_n \rightarrow p_n})$:
+
+\begin{itemize}
+	\item $\pi_p \sim Dirichlet(\gamma_p)$
+	\item $z_{p_n \rightarrow q_n} \sim Multinomial(\phi_{p_n \rightarrow q_n})$
+	\item $z_{q_n \rightarrow p_n} \sim Multinomial(\phi_{q_n \rightarrow p_n})$
+\end{itemize}
+
+The essence of variational inference (specifically coordinate-ascent VI) is that we can learn the optimal distribution of each variable \textit{given the other variables}.
+We iterate over the variables, updating their distributions in turn, with each iteration bringing the $q$ distributions closer to the true posterior.
+
+The update equations are as follows:
+
+\[
+\hat{\gamma_{p,k}} = \alpha + \sum_{n \in N} \mathbbm{1}(p = p_n)\phi_{p_n \rightarrow q_n,k} + \sum_{n \in N} \mathbbm{1}(p = q_n)\phi_{q_n \rightarrow p_n,k}
+\]
+
+\[
+\hat{\phi_{p_n \rightarrow q_n,g}} \propto exp\bigg\{\mathbb{E}_q\big[log(\pi_{p,g})\big] + \sum_{h}\phi_{q_n \rightarrow p_n,h}\mathbb{E}_q\big[logp(y_n|B_{gh})\big]\bigg\}
+\]
+
+\[
+\hat{\phi_{q_n \rightarrow p_n,h}} \propto exp\bigg\{\mathbb{E}_q\big[log(\pi_{q,h})\big] + \sum_{g}\phi_{p_n \rightarrow q_n,g}\mathbb{E}_q\big[logp(y_n|B_{gh})\big]\bigg\}
+\]
+
+\[
+\hat{B_{gh}} = \frac{
+\sum_{n \in N} \phi_{p_n \rightarrow q_n, g} \phi_{q_n \rightarrow p_n, h} y_n + \phi_{p_n \rightarrow q_n, h} \phi_{q_n \rightarrow p_n, g}(1-y_n)
+}{
+\sum_{n \in N} \phi_{p_n \rightarrow q_n, g} \phi_{q_n \rightarrow p_n, h} + \phi_{p_n \rightarrow q_n, h} \phi_{q_n \rightarrow p_n, g}
+}
+\]
+
+Additional details of these derivations are given in Appendix \ref{sec:mmsb_appendix}.
+
+\subsubsection{Empirical Results}
+
+We evaluated the MMSB model in three ways: on simulated data, on the MovieLens dataset, and on survey data.
+
+\textbf{Simulations}
+
+In order to validate our implementation and the validity of the model, we fit our MMSB to simulated data.
+For small-to-medium sized graphs, our implementation recovers (with some variation) the true prototype distributions $\pi$ and interaction matrix $B$, given enough observations. See Figures \ref{fig:pi_v_gamma} and \ref{fig:interactions_med}.
+
+\textbf{MovieLens Data}
+
+Given that the MovieLens dataset we work with is constructed based on the
+user ratings, the preferences we observe for a single user must be transitive.
+As such, for a single user, we expect to be able to learn five ``prototypes'', 
+each corresponding to a different rating, with the
+interaction matrix $B$ to encoding a transitive ordering among these ratings.
+We find that this occurs: when setting $K=5$, the model 
+learns a strict ordering among the prototypes, and is able to correctly predict 
+this user preferences with $98\%$ accuracy on the heldout dataset (Figure \ref{fig:interactions_movie}).  
+
+With multiple users, we are no longer guaranteed a single shared transitive
+ordering.
+We see in Figure \ref{fig:acc_movies} that the heldout accuracy of the
+MMSB plateaus at around $76\%$ when trained on the data from 30 users.
+Adding more prototypes, beyond $K=4$, does not improve the
+performance of the model. This suggests that the model is simply assigning each
+movie to the prototype corresponding to its average rating; thus, having more
+than 5 prototypes is not useful.
+
+\textbf{Survey Data}
+
+We fit the MMSB to a survey of beer preferences, first considering only the answers from the single opinionated user.
+We fit the model to 900 training observations, and measured predictive accuracy on the remaining 344.
+We varied K, the number of prototypes, from 1 to 15, but found that predictive accuracy was very stable for K > 1, hovering around 78\%.
+With $K=3$, our model learned a transitive ordering of preferences among prototypes. See Figures \ref{fig:B_beer} and \ref{fig:interactions_beer}.
+
+We next considered the answers coming from all other participants.
+We fit the model to 150 training observations and measured accuracy on the remaining 74.
+We varied K in the same way as before, and observed both more variable and overall weaker predictive accuracy, rarely surpassing 60\%.
+We conclude that this model is capable of capturing prototype interaction structure, but it will not perform well given small samples, weakly structured, or very noisy data.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{images/pi}
+\includegraphics[width=\textwidth]{images/gamma}
+\caption{True (top) vs. recovered (bottom) prototype assignments, K=4, V=10, N=10000. We see how the model has correctly grouped the items into their prototypes. Note the label-switching --- this illustrates the multi-modal nature of the joint probability distribution.}
+\label{fig:pi_v_gamma} 
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=10cm]{images/interactions_med}
+\caption{Simulated interaction matrix, items sorted by most likely prototype, K=4, V=100, N=10000. The visible blocks show that items coming from similar prototypes interact in similar ways to items coming from other prototypes. The diagonal is gray, indicating that intra-prototype comparisons are 50/50 chance.}
+\label{fig:interactions_med} 
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=10cm]{images/interactions_movie}
+\caption{Movie interaction matrix, one user, items sorted by most likely prototype, K=5, V=272, N=1499}
+\label{fig:interactions_movie} 
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=10cm]{images/acc_movies}
+\caption{Predictive accuracy against held-out data, 200 films and 20 users, function of number of prototypes. Accuracy plateaus at K = 4, indicating that the model is assigning each movie to a prototype corresponding to an average rating.}
+\label{fig:acc_movies} 
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=10cm]{images/interactions_beer}
+\caption{Beers interaction matrix, one user, items sorted by most likely prototype, K=3, V=27, N=1244}
+\label{fig:interactions_beer} 
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{tabular}{ | c | c c c | }
+\hline
+& 0 & 1 & 2 \\ 
+\hline
+0 & 0.50 & 0.10 & 0.11 \\
+1 & 0.90 & 0.50 & 0.89 \\
+2 & 0.89 & 0.11 & 0.50 \\
+\hline
+\end{tabular}
+\caption{B matrix for beer survey, one user. Ordering is transitive (1 < 2 < 0).}
+\label{fig:B_beer} 
+\end{figure}

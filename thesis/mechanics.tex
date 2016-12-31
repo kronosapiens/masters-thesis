@@ -138,26 +138,33 @@ Selecting $b$ would cause both entities to have their second preference, a forfe
 Selecting $a$ or $c$, on the other hand, would cause one entity to have its first preference, and the other third --- a forfeiture of two items.
 In a sense, this pair of opposing preferences render all answers equal.
 
-Observe what happens in the corresponding preference graph:
+Observe what happens in the corresponding preference graph (Figure \ref{fig:elements_agg_opposing}).
 
-\begin{center}
+\begin{figure}[!htb]
+\centering
 \begin{tikzpicture}[node distance=3cm]
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
 \node [roundnode] (c) [below of=a] {c};
-\draw[ultra thick, -] (b) -- node[auto] {1-1} (a);
-\draw[ultra thick, -] (c) -- node[auto] {1-1} (b);
-\draw[ultra thick, -] (a) -- node[auto] {1-1} (c);
+\draw[ultra thick, ->] (b) to[bend right] node[below] {1} (a);
+\draw[ultra thick, ->] (a) -- node[below] {1} (b);
+\draw[ultra thick, ->] (c) to[bend right]  node[below] {1} (b);
+\draw[ultra thick, ->] (b) -- node[below] {1} (c);
+\draw[ultra thick, ->] (a) to[bend right]  node[right] {1} (c);
+\draw[ultra thick, ->] (c) -- node[right] {1} (a);
 \end{tikzpicture}
-\end{center}
-
-\begin{center}
+\hspace{5mm}
+\raisebox{2 cm}{$\rightarrow$}
+\hspace{5mm}
 \begin{tikzpicture}[node distance=3cm]
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
 \node [roundnode] (c) [below of=a] {c};
 \end{tikzpicture}
-\end{center}
+\hfill
+\caption{Cancellation of opposing preferences.}
+\label{fig:elements_agg_opposing}
+\end{figure}
 
 The answers are disconnected; we interpret as an absence of preference.
 
@@ -170,6 +177,7 @@ Populations have magnitudes, however, and so we can comfortably reason in terms 
 \subsection{A Probabilistic View}
 
 Let us now consider some structural properties of preference graphs, and interpret them through the lens of preference resolution.
+In this discussion, we will consider graphs in which we have observed each ... TODO
 
 In the language of computer science, we denote graphs as $G = (V, E)$, with graph $G$ consisting of some set $V$ of \textit{vertices} (or \textit{nodes}) and some set $E$ of \textit{edges} between the vertices.
 Edges can be directed or undirected, and are denoted $(u,v) \in E$, with $u, v \in V$.
@@ -261,7 +269,7 @@ As an illustration, let's consider a triple, where $n = 3$.For every triple of v
 \draw[ultra thick, <-] (a) -- (b);
 \draw[ultra thick, <-] (c) -- (a);
 \draw[ultra thick, <-] (b) -- (c);
-\end{tikzpicture}\vspace{3mm}
+\end{tikzpicture}\vspace{5mm}
 \begin{tikzpicture}[node distance=3cm]
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
@@ -285,7 +293,7 @@ As an illustration, let's consider a triple, where $n = 3$.For every triple of v
 \draw[ultra thick, <-] (b) -- (a);
 \draw[ultra thick, <-] (a) -- (c);
 \draw[ultra thick, <-] (c) -- (b);
-\end{tikzpicture} \vspace{3mm}
+\end{tikzpicture} \vspace{5mm}
 \begin{tikzpicture}[node distance=3cm]
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
@@ -496,3 +504,5 @@ Note that the eigenvector-based methods described earlier imply IIA relaxation.
 \caption{Same sequence of preference orderings, shown as preference graphs. We set $|S_1| = |S_2| = 2$. $S_1$ and $S_2$'s reversal of preference between $b$ and $c$ in the third graph creates a cycle.}
 \label{fig:impossiblity_graphs} 
 \end{figure}
+
+
