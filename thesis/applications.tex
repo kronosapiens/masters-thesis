@@ -105,7 +105,7 @@ If there is a different access policy, this method may return different results.
 
 These algorithms, which both run in $O(m + n)$ (linear) time, utilize local (pairwise) information between nodes, but incorporate no information about global relationships among nodes.
 
-\subsection{Eigenvector Methods}
+\subsection{Eigenvector Ranking}
 
 Google's first \textbf{PageRank} algorithm, designed by founders Sergey Brin and Larry Page, was designed to solve a similar problem: given a directed graph of websites, can one determine which sites are most relevant for a given query?
 Brin and Page's solution was to model the web as a random directed graph, and to imagine a \say{random surfer} who would randomly click on links (represented as directed edges from one site to the next).
@@ -177,7 +177,7 @@ We assess quality of ordering with Spearman's footrule (as discussed in \cite{jo
 \label{fig:pr_0} 
 \end{figure}
 
-\subsection{Bayesian Methods}
+\subsection{Mixed-Membership Stochastic Blockmodel}
 
 The complexity of the algorithms discussed above are all, in some form, $O(f(n))$.
 Finding some way of reducing $n$ would allow all of these techniques to be applied more quickly.
@@ -192,7 +192,6 @@ Community-finding is a major problem in computer science, and much work has been
 Here we present a model, based on the Mixed-Membership Stochastic Blockmodel (MMSB) of \cite{airoldi:2008}.
 This is a ``Bayesian model'' in that we first assert a model for our data, in which latent factors (hidden variables) interact and ultimately bring about the data we observe.
 Inference in this model amounts to learning the optimal (``posterior'') values of these hidden variables, based on the data.
-
 
 \subsubsection{Model Specification}
 
@@ -273,11 +272,13 @@ Additional details of these derivations are given in Appendix \ref{sec:mmsb_appe
 
 We evaluated the MMSB model in three ways: on simulated data, on the MovieLens dataset, and on survey data.
 
+\bigskip
 \textbf{Simulations}
 
 In order to validate our implementation and the validity of the model, we fit our MMSB to simulated data.
 For small-to-medium sized graphs, our implementation recovers (with some variation) the true prototype distributions $\pi$ and interaction matrix $B$, given enough observations. See Figures \ref{fig:pi_v_gamma} and \ref{fig:interactions_med}.
 
+\bigskip
 \textbf{MovieLens Data}
 
 Given that the MovieLens dataset we work with is constructed based on the
@@ -298,6 +299,7 @@ performance of the model. This suggests that the model is simply assigning each
 movie to the prototype corresponding to its average rating; thus, having more
 than 5 prototypes is not useful.
 
+\bigskip
 \textbf{Survey Data}
 
 We fit the MMSB to a survey of beer preferences, first considering only the answers from the single opinionated user.

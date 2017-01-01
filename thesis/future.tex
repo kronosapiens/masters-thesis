@@ -1,47 +1,109 @@
 \subsection{Deployment to a BBVM Environment}
 
-\subsection{Active Learning and Item Pruning}
+The aim of this work has been to develop methods of representing and analyzing preferences, to facilitate the large-scale coordination of individuals.
+In particular, emphasis was placed on understanding the efficiency of analysis.
+Efficient analysis would allow for the wider deployment of preference-resolution mechanisms, and their inclusion in a wider range of applications.
+
+\bigskip
+
+In particular, we believe there is opportunity to embed efficient preference-resolution mechanisms into applications deployed to blockchain-based virtual machines, such as Ethereum.
+These platforms have the following consequential properties:
+
+\begin{itemize}
+	\item The platform is turing-complete, allowing for the performance of computations of arbitrary complexity.
+	\item Computations carried out on the platform are redundant and immutable, making results very difficult to fabricate, and therefore highly legitimate.
+	\item The platform is distributed, so the system can survive the loss of individual nodes.
+\end{itemize}
+
+One could imagine applications which continuously measure and analyze preference, and take autonomous action upon discovering sufficiently clear preference structure.
+In general, the fragility of computer systems (susceptibility to hacking, for example), would likely make us reticent to devolve too much decision-making autonomy to these systems.
+The resiliency and legitimacy of the BBVM platform, however, make these types of applications more feasible.
+
+\bigskip
+
+The large-scaled redundancy of computation on these platforms (all computations must be carried out by all nodes) means that any analysis run on these platforms will needs be of limited complexity.
+This is a major constraint, and motivates the search for more efficient representations and analysis.
+
+The promise here is great, however: were sufficiently efficient representations and analysis discovered, it would be possible to deploy applications which autonomously and legitimately coordinate activity  in a highly non-hierarchical way, without appealing to individual (and therefore susceptible to coercion or exploitation) leadership.
+The computational power of these platforms is currently limited, but if the history of computing is any indication (in 1977 the Apple II had RAM measured in kilobytes), they will grow in power over time.
+As such, methods of analysis too cumbersome to deploy today may find themselves surprisingly valuable in the years to come.
+
+\subsection{Item Pruning and Active Learning}
+
+As discussed earlier, given $n$ items there are $n(n-1)/2$ possible pairs.
+A larger number of items makes it more difficult to observe a sufficient number of preferences to accurately recover global preference structure.
+As such, techniques for either 1) reducing the number of items to be considered, or 2) identifying and observing critical pairs, would help make preference resolution easier for a large number of items.
+
+\subsubsection{Item Pruning}
+
+We have already proposed one method for item pruning, the MMSB algorithm.
+This algorithm takes in an arbitrary number of observations and learns $K << n$ prototypes which reflect a higher-level preference structure.
+Possession of these prototypes and their relationships reduces the size of the problem in the following ways: 
+
+\begin{itemize}
+	\item If there are clear prototypes but complex preferences between prototypes, we can rephrase the question only in terms of the prototypes, easing the problem from complexity in $n$ to complexity in $K$ (``zooming out'').
+	\item If there are clear preferences between prototypes, such that one prototype is universally preferred, then we can limit consideration only to the items associated with the winning prototype (``zooming in'').
+\end{itemize}
+
+This is only one example.
+More techniques for item pruning would allow for the more efficient analysis of complex preference structure.
+
+\subsubsection{Active Learning}
+
+As said, $n$ items creates $n(n-1)/2$ possible pairs.
+In this work, we have assumed that preferences will be observed at random, but in practice it is unlikely that all pairs will be of equal importance in discovering preference structure.
+For example, if two items seems to be in general preferred over all other items, then we should prioritize learning the relative preference between those two items.
+
+This prioritization is known as ``active learning'' and there exists a large literature on the topic (\cite{shahriari:2016}).
 
 \subsection{Optimal Committee Discovery}
 
-\subsection{Comparison to alternative representations}
+Throughout this work, we have implicitly assumed that larger numbers of entities leads to better, more legitimate decisions.
+While this assumption is defensible when considering questions of an abstract or ethical nature (``what is our greatest value'', or ``how should we balance the budget''), this assumption is less defensible when considering technical questions (``how can we improve our energy infrastructure'', or ``which subcontractors should we hire to for this construction project'').
+For questions requiring technical expertise, large numbers of non-specialized entities would have noisy and high-entropy (uninformative) preference structure.
+It would seem that instead of including the largest number of entities, we should instead seek to assemble a subset of entities (a ``committee'') with the following two properties:
 
-The problem of representing subjectivity is not new; rather, it represents one of the fundamental challenges of the social sciences. It will be illustrative to compare this proposed system to common standards.
+\begin{enumerate}
+	\item All entities possess sufficient expertise to be able to make meaningful distinctions between items (nonrandom preference structure).
+	\item The variation in preference among these entities adequately covers the variation in preference found in the larger community.
+\end{enumerate} 
 
-A \textit{Likert scale} is a type of survey, consisting of a number of \textit{Likert items}, each asking the participant to answer a question by checking boxes such as \say{Strongly Agree}, \say{Strongly Disagree} and so on. This method attempts to project subjectivity onto a range, for later interpretation via a number line.
+We would expect preferences drawn from a committee with these properties would be more structured than preferences drawn from the larger community, and therefore easier to analyze and yeilding more legitimate conclusions.
 
-In well-designed Likert scales, the responses distribute uniformly across the range, which can consist of any number of degrees of feeling (five to ten being common). This distribution of answers allows a researcher to justify interpreting the responses as though they fell along some sort of number line, and perform analysis accordingly.
+\bigskip
 
-The use of socrata avoids some of the problems observed with Likert scales. 
+The question becomes that of discovering these committees.
+One approach would be to pose a question to  all entities, and then consider only the subset of those entities whose preferences meet some criteria for minimal structure (such as having a maximum indegree exceeding some threshold).
+Another approach would be to pose a general question to all entities, and then select those entities whose preferences for the general question meet some criteria, and then put to them the new, more specific question.
 
-GENERALIZE TO LIKERT SCALE?
+\subsection{Question Quality Assessment}
 
-1 -> 2
+The notion of ``structure'' of preference makes it possible to empirically measure the ``quality'' of a question, with high-quality questions giving rise to highly structured preferences.
+In an extreme case, a question consisting of nonsense letters would be expected to lead to completely unstructured answers: entities either abstaining or indicating preferences at random.
+Such a question would be low-quality in that it does not give rise to structured preferences.
+Following this reasoning, higher-quality questions are those which give rise to more well-structured preferences (however ``structure'' is defined in the context of the particular problem).
 
-1 -> 3
+If we had two candidate questions $Q_1, Q_2$, and the same set of candidate answers, we could identify objectively the ``better'' question by seeing which question gave rise to more structured preferences.
+It is interesting and encouraging to observe how the mechanics of preference graphs given in this work allow us to learn not only the relations between items, but the relations between questions.
 
-2 -> 3
+\subsection{Conclusions}
 
-4 -> 3
+The German-American political theorist Hannah Arendt has written about the need for a ``public sphere'', in which there exist methods and structures to allow the achievement of collective freedom via the construction of a common world (\cite{dentreves:2016}).
+In Arendt's view, the public sphere is artificial in that does not require grounding in notions of ``natural rights'', but is rather constructed and maintained somewhat arbitrarily by human beings.
+Further, Arendt felt that political representation (via elected officials) limited the power of individuals and emphasized the distinction between the rulers and the ruled.
+In the spirit of Arendt, we have attempted to lay groundwork for new mechanisms of direct political participation.
 
-5 -> 3
+\bigskip
 
-5 -> 4
+This work has explored the question of large-scale nonviolent coordination, taking as its starting point powerful communication and computational technologies.
+We found ourselves closely tracking the work of the social choice theorists, and incorporated ideas from machine learning to attempt to understand and solve those same problems.
+We presented a very general representation of preference, achieving the goal of accurately representing subjectivity while allowing for computational analysis.
+We then presented a number of algorithms, old and new, for analyzing these types of representations.
 
+\bigskip
 
-An important consideration is the treatment of contradiction (specifically, intransitivity) among preferences. In the political science literature, intransitivity is seen as problematic \cite{arrow}. We, however, view this type of contradiction as a property of subjective experience and do not attempt to eliminate it. Rather, we allow for this possibility and seek to interpret it.
+This is an ambitious but hugely important topic.
 
-\subsection{Relations to other branches of social science}
+\subsection{Acknowledgements}
 
-- Study of social influences on voting (music preference study)
-The preferences measured via this approach will likely exhibit the same phenomenon as studied by.
-
-There are many possible extensions of this theory.
-
-Item clustering for algorithmic efficiency
-
-Recursive decomposition of participants
-
-Studying how question phrasing affects answers. By using the same answer set $A$ for multiple questions, and studying how the responses differ, it should be possible to gain a deeper understanding about the relationship between the questions.
-
-Beyond economics, political theorist Hannah Arendt has written about the need for a \say{public sphere}, in which there exist methods and structures to allow the achievement of collective freedom via the construction of a common world. CITE.
+We would like to thank Eleni Drinea for her thoughtful advising and valuable feedback on the presentation of a number of technical concepts, as well as Avner May for his assistance in developing the MMSB algorithm.

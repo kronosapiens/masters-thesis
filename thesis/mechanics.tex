@@ -62,13 +62,10 @@ Now, we see that the salient attributes of a preference are the two options $\al
 This graphical representation is desirable, as it suggests a natural way of aggregating preference. Imagine we have $A = \{a, b, c, d\}$. The entity generates the following preferences:
 
 \begin{center}
-
 \socrata{a}{b}
-
 \socrata{a}{c}
 
 \socrata{b}{d}
-
 \socrata{c}{b}
 
 \end{center}
@@ -92,25 +89,17 @@ Aggregating preferences across multiple entities presents little difficulty.
 If we have entity $\alpha$ generating the following (an ordered preference of $a, b, c$):
 
 \begin{center}
-
 \socrata{a}{b}
-
 \socrata{a}{c}
-
 \socrata{b}{c}
-
 \end{center}
 
 And entity $\beta$ generating the following (an ordered preference of $a, c, b$):
 
 \begin{center}
-
 \socrata{a}{b}
-
 \socrata{a}{c}
-
 \socrata{c}{b}
-
 \end{center}
 
 
@@ -118,6 +107,20 @@ We can assign each preference a weight of 1 and combine the edges.
 Parallel edges sum, while antiparallel edges cancel:
 
 \begin{center}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, ->] (b) to[bend right] node[below] {1} (a);
+\draw[ultra thick, ->] (b) -- node[below] {1} (a);
+\draw[ultra thick, ->] (c) to[bend right]  node[below] {1} (b);
+\draw[ultra thick, ->] (b) -- node[below] {1} (c);
+\draw[ultra thick, ->] (c) to[bend left]  node[left] {1} (a);
+\draw[ultra thick, ->] (c) -- node[right] {1} (a);
+\end{tikzpicture}
+\hspace{5mm}
+\raisebox{2 cm}{$\rightarrow$}
+\hspace{5mm}
 \begin{tikzpicture}[node distance=3cm]
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
@@ -138,10 +141,9 @@ Selecting $b$ would cause both entities to have their second preference, a forfe
 Selecting $a$ or $c$, on the other hand, would cause one entity to have its first preference, and the other third --- a forfeiture of two items.
 In a sense, this pair of opposing preferences render all answers equal.
 
-Observe what happens in the corresponding preference graph (Figure \ref{fig:elements_agg_opposing}).
+Observe what happens in the corresponding preference graph:
 
-\begin{figure}[!htb]
-\centering
+\begin{center}
 \begin{tikzpicture}[node distance=3cm]
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
@@ -161,10 +163,7 @@ Observe what happens in the corresponding preference graph (Figure \ref{fig:elem
 \node [roundnode] (b) [right of=a] {b};
 \node [roundnode] (c) [below of=a] {c};
 \end{tikzpicture}
-\hfill
-\caption{Cancellation of opposing preferences.}
-\label{fig:elements_agg_opposing}
-\end{figure}
+\end{center}
 
 The answers are disconnected; we interpret as an absence of preference.
 
@@ -172,51 +171,62 @@ The answers are disconnected; we interpret as an absence of preference.
 
 \textit{A note on method:} we have been very intentional in our avoidance of assigning numerical value to subjective preference.
 For an \textit{individual} entity (with an emphasis on the literal meaning of \say{individual} as non-divisible), preference is non-numeric.
-Populations have magnitudes, however, and so we can comfortably reason in terms of sums and ratios when considering groups of entities.
+Populations have magnitudes, however, and so we can comfortably reason in terms of sums and ratios when considering aggregations of entity preferences.
 
 \subsection{A Probabilistic View}
 
 Let us now consider some structural properties of preference graphs, and interpret them through the lens of preference resolution.
-In this discussion, we will consider graphs in which we have observed each ... TODO
+In this discussion, we will employ the elements of probabilistic methods of Paul \cite{erdos:1959}.
+
+\bigskip
 
 In the language of computer science, we denote graphs as $G = (V, E)$, with graph $G$ consisting of some set $V$ of \textit{vertices} (or \textit{nodes}) and some set $E$ of \textit{edges} between the vertices.
 Edges can be directed or undirected, and are denoted $(u,v) \in E$, with $u, v \in V$.
-
 When analyzing complexity, we use $n = |V|$, the number of vertices, and $m = |E|$, the number of edges.
-Since an edge may exist between any pair of edges (even a self-pair), we see that $m \leq n^2$.
-Note that $(u,v), (v,u), (u,u)$ may count as three separate edges.
-In our case, there are $\frac{n^2-n}{2}$ possible preferences (per entity).
+We done the number of incoming edges for node $u$ as $in(u)$, and the number of outgoing edges as $out(u)$.
+We refer to $in(u)$ as the ``indegree'' of $u$, and $out(u)$ as the ``outdegree'' of $u$.
+Since an edge may exist between any pair of edges, we see that $m \leq n^2$.
+In our case, there are ${n}\choose{2}$ possible pairs per graph.
+Further, we see that $max_{u \in V}in(u) = n - 1$.
 
-A vertex can be called a \textit{sink} if all of its edges point inward towards it.
+A vertex can be called a \textit{universal sink} if it has $in(u) = n - 1$.
 In the context of preference, a sink is an option that is preferred over all others.
-As a first pass, we can think of the problem of resolving preference as a problem of finding a sink.
-Sinks can be found in O(n) time.
+As a first pass, we can think of the problem of resolving preference as a problem of finding a universal sink, which can be found in O(n) time.
 
-It might seem as the problem of preference resolution is simple: observe preferences, and find the sink.
-Unfortunately, there is no guarantee that a sink will exist.
-As $n$ increases, the likelihood of a sink existing in a random graph decreases exponentially.
+It might seem as the problem of preference resolution is simple: observe preferences, and find the universal sink.
+Unfortunately, there is no guarantee that a universal sink will exist.
+
+\bigskip
+
+To show this, we will extend the $G(n,p)$ notation of Erd{\H o}s to the tournament graphs of \cite{landau:1953}.
+A $G(n,p)$ graph is a random undirected graph of $n$ nodes, with the probability $p$ of an edge existing between any two nodes.
+In this discussion, we will repurpose this notation to describe a different type of graph, a \textit{random tournament} $G^*(n,p)$, generated as follows:
+
+\begin{enumerate}
+	\item Create a complete graph of $n$ nodes.
+	\item Remove all $(u,u)$ edges.
+	\item Create a directed graph by randomly orienting the edges, with probability $p$ that $(u, v) \in E$ and probability $1-p$ that $(v, u) \in E$.
+\end{enumerate}
+
+We will show that as $n$ increases, the likelihood of a universal sink existing in a random tournament decreases exponentially.
 Every vertex has $n-1$ edges.
-For vertex $u$, to be a sink, all of these edges must point towards it.
-If we consider a random graph with a uniform distribution on all edges:
+For vertex $u$, to be a universal sink, all of these edges must point towards it.
+
+
+If we consider a random tournament $G^*(n,p)$, then
 
 \[
-p((u,v) \in E)= \frac{1}{2}
+p(u_{usink}) = \prod_{v \in (V / \{u\})}p((u,v) \in E) = \frac{1}{2^{n-1}}
 \]
 
-then
+Since the relationships between any pair of vertices is independent of all other pairs, the probability of \textit{any} sink is bounded by the sum of the probabilities of the individual vertices being sinks:
 
 \[
-p(u_{sink}) = \prod_{v \in V}p((u,v) \in E) = \frac{1}{2^{n-1}}
+p(G_{usink}) \leq \sum_{u \in V}p(u_{usink}) = \frac{n}{2^{n-1}}
 \]
 
-Since the relationships between any pair of vertices is independent of all other pairs, the probability of \textit{any} sink is the sum of the probabilities of the individual vertices being sinks:
-
-\[
-p(G_{sink}) = \sum_{u \in V}p(u_{sink}) = \frac{n}{2^{n-1}}
-\]
-
-The likelihood of a sink existing in a random graph diminishes quickly as $n$ increases.
-If a graph has no sink, then there must exist at least one \textit{cycle} in the graph.
+The likelihood of a universal sink existing in a random tournament decreases exponentially as $n$ increases.
+If a tournament has no universal sink, then there must exist at least one \textit{cycle} in the tournament.
 A cycle is a subset of vertices and edges such that there exists a \say{path} of edges such that any vertex in the cycle is reachable from any other.
 Here is the simplest cycle between three vertices:
 
@@ -231,21 +241,20 @@ Here is the simplest cycle between three vertices:
 \end{tikzpicture}
 \end{center}
 
-It is easy to see that this graph has no sink.
-\textit{From the perspective of preference, we interpret a cycle as a set of options which are preferred equally}; alternatively, we can say that they are \textit{indistinguishable}.
+It is easy to see that this tournament has no universal sink.
+From the perspective of preference, we interpret a cycle as a set of items which are preferred equally; alternatively, we can say that they are \textit{indistinguishable} from each other.
 
-If there are $n$ vertices, then there are $(n^2-n)/2$ pairs.
+If there are $n$ vertices, then there are $n\choose{2}$ pairs.
 Since there are two possible states for each pair, there are a total of
 
 \[
-2^{(n^2-n)/2}
+2^{n\choose{2}}
 \]
 
 possible graphs.
 As an illustration, let's consider a triple, where $n = 3$.For every triple of vertices, there are $2^3 = 8$ possible permutations of edges:
 
-\begin{figure}[!htb]
-\centering
+\begin{center}
 \begin{tikzpicture}[node distance=3cm]
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
@@ -310,21 +319,10 @@ As an illustration, let's consider a triple, where $n = 3$.For every triple of v
 \draw[ultra thick, <-] (c) -- (a);
 \draw[ultra thick, <-] (b) -- (c);
 \end{tikzpicture}
-\caption{All possible 3-vertex directed graphs}
-\end{figure}
+\end{center}
 
 In the case of three vertices, we see cycles in two out of eight possible graphs.
-A cycle exists between any set of $k$ vertices if all $k$ corresponding edges have the same orientation, something which occurs with likelihood $\frac{1}{2^n}$.
-The likelihood of a cycle among any $k$ vertices shrinks exponentially in $k$, but note that number of subsets of $k$ increases combinatorically in the number of nodes: there are ${n}\choose{k}$ such subsets.
-For example, given $n = 5$ and $k = 3$, there are
-
-\[
-{{5}\choose{3}} = \frac{5!}{3! 2!} = \frac{20}{2} = 10
-\]
-
-such subsets.
-
-It is worth noting that while the absence of cycles necessarily implies the presence of a sink, the presence of a cycle does not necessarily imply the absence of a sink.
+It is worth noting that while the absence of cycles in a random tournament necessarily implies the presence of a universal sink, the presence of a cycle does not necessarily imply the absence of a universal sink.
 To see this, consider the following four-vertex directed graph:
 
 \begin{center}
@@ -342,45 +340,90 @@ To see this, consider the following four-vertex directed graph:
 \end{tikzpicture}
 \end{center}
 
-In this graph, vertices $\{c, b, d\}$ form a cycle, but $a$ is still a sink.
-As discussed earlier, however, the likelihood of a sink existing in a random graph, even allowing for cycles, decreases exponentially in $n$.
-We raise this point to underscore that the presence of cycles does not imply the absence of meaningful structure; simply that meaningful structure will be more challenging to discern.
+In this graph, vertices $\{c, b, d\}$ form a cycle, but $a$ is still a universal sink.
+As discussed earlier, however, the likelihood of a universal sink existing in a random tournament, even allowing for cycles, decreases exponentially in $n$.
 
 \bigskip
 
-What is \say{structure}?
-To understand what constitutes structure, it will be helpful to consider an example of the absence of structure: a completely random graph.
-To describe this graph, we will introduce some concepts of probability.
-Since preference graphs consist of directed edges, we will say that a \say{completely random} graph is one where, for any two vertices, there is an equal probability of the edge between them pointing in one direction or the other.
-Formally, we say that edges are Bernoulli distributed:
+We raise this point to underscore that the presence of cycles does not imply the absence of meaningful structure; simply that meaningful structure will be more challenging to discern.
+What is ``structure''?
+American mathematician Claude Shannon defined a measure of structure, known as \textit{entropy}, which applied to probability distributions of random variables (\cite{cover}):
 
 \[
-edge(u,v) \sim Bern(0.5)
+H(X) = -\mathbb{E}[logp(X)] = -\sum_{x \in X}p(x)logp(x)
 \]
 
-with 
+Entropy is high when a distribution has a lot of uncertainty, and low when a distribution has little uncertainty.
+
+This metric has proven invaluable: what analogous metrics might we develop for tournaments?
+One possibility is the \textit{maximum indegree}, $max_{u \in V}in(u)$.
+This metric can be calculated in $O(m + n)$ (linear time), and provides a rough sense of the amount of structure of the graph.
+
+A second possibility is to look at the \textit{tournament entropy} $H^*$, the entropy of the empirical distribution of the indegrees of tournament $G$:
 
 \[
-edge(u,v) = 1 \rightarrow (u,v) \in E
-\]
-\[
-edge(u,v) = -1 \rightarrow (v,u) \in E.
+H^*(G) = -\sum_{u \in V} \frac{in(u)}{m}log\bigg(\frac{in(u)}{m}\bigg)
 \]
 
-If we consider incoming edges as having a value of 1, and outgoing edges as having a value of -1, the the expected value of any edge is:
+Tournament entropy can be calculated in linear time.
+In the case of a three-node cycle, each node has an indegree of 1, equivalent to a uniform distribution over indegrees:
 
-\[
-\mathbb{E}[edge(u,v)] = 0
-\]
+\begin{center}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, ->] (b) -- (a);
+\draw[ultra thick, ->] (c) -- (b);
+\draw[ultra thick, ->] (a) -- (c);
+\end{tikzpicture}
+\hspace{5mm}
+\raisebox{2 cm}{$\rightarrow$}
+\hspace{5mm}
+\begin{tikzpicture}[scale=0.65]
+\begin{axis}[
+    symbolic x coords={a, b, c},
+    ylabel=indegree,
+    xtick=data]
+    \addplot[ybar,fill=white!80!blue] coordinates {
+        (a,1)
+        (b,1)
+        (c,1)
+    };
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
-and the sum of ingoing and outgoing edges for any node $u$ in the completely random graph, assuming edge independence, is:
+The tournament entropy of this graph is 1.585 bits, the maximum entropy distribution for three items.
+In the case of a three-node transitive preference, we see a skewed distribution:
 
-\[
-\mathbb{E}\left[\sum_{v \neq u} edge(u,v)\right] = \sum_{v \neq u}\mathbb{E}[edge(u,v)] = 0
-\]
+\begin{center}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, ->] (b) -- (a);
+\draw[ultra thick, ->] (c) -- (b);
+\draw[ultra thick, ->] (c) -- (a);
+\end{tikzpicture}
+\hspace{5mm}
+\raisebox{2 cm}{$\rightarrow$}
+\hspace{5mm}
+\begin{tikzpicture}[scale=0.65]
+\begin{axis}[
+    symbolic x coords={a, b, c},
+    ylabel=indegree,
+    xtick=data]
+    \addplot[ybar,fill=white!80!blue] coordinates {
+        (a,2)
+        (b,1)
+        (c,0)
+    };
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
-This graph has no meaningful structure; no preferences can be learned.
-Considering this example, it seems as though \textit{structure} can be thought of in terms of deviations from this random case.
+In this case, the tournament entropy is 0.918 bits.
 
 \subsection{A Linear Algebra View}
 
