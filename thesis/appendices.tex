@@ -36,7 +36,7 @@ We will learn all parameters by maximizing the ELBO:
 
 The updates for $\gamma, \phi_{p \rightarrow q}, \phi_{q \rightarrow p}$ are exactly as given in \cite{airoldi:2008}, with the modification that we iterate over $N$ observations, rather than $V \times V$ pairs.
 
-\subsubsection{Learning $B$ Matrix }
+\subsubsection{Learning the $B$ Matrix}
 
 Our model differs from the MMSB specified by \cite{airoldi:2008} , in that we introduce restrictions on the matrix B.
 The first thing to note is that the symmetric restriction on B implies that we must learn and store only the upper-triangle of the matrix; the lower-triangle can be generated from the upper.

@@ -10,7 +10,9 @@ Fully accounting for all possible interactions among items will likely be comput
 \subsection{Linear-Time Methods}
 
 If a graph is not fully connected (some vertices lack edges), then it is possible for there to exist multiple sinks.
-If a graph is fully connected, however, then there can exist at most one sink. \textbf{Proof}: if there were two sinks, one must point towards the other: a contradiction $\rightarrow\leftarrow$.
+If a graph is fully connected, however, then there can exist at most one sink.
+
+\textbf{Proof}: if there were two sinks, one must point towards the other: a contradiction $\rightarrow\leftarrow$.
 
 The first example we will consider is the most fundamental of preference resolution systems: the \textbf{plurality voting system}.
 In this system, entities (which we will call voters) are allowed to vote for one of $n$ candidates, and the candidate with the most votes win.
@@ -30,7 +32,7 @@ For example, given three candidates $\{a, b, c\}$, a vote for $a$ would translat
 
 We aggregate the preferences using the additive rule described above.
 The winner of the election will be the sink of the resulting graph.
-The presence of at least one sink is guaranteed by the structure of the access policy.
+The absence of cycles is guaranteed by the structure of the access policy.
 Consider the following result: $a$ receives 10 votes, $b$ receives 7, and $c$ receives 3.
 We combine these into the following graph:
 
@@ -105,57 +107,34 @@ If there is a different access policy, this method may return different results.
 
 These algorithms, which both run in $O(m + n)$ (linear) time, utilize local (pairwise) information between nodes, but incorporate no information about global relationships among nodes.
 
-\subsection{Eigenvector Ranking}
+\subsection{PrefRank}
 
-Google's first \textbf{PageRank} algorithm, designed by founders Sergey Brin and Larry Page, was designed to solve a similar problem: given a directed graph of websites, can one determine which sites are most relevant for a given query?
+Google's first PageRank algorithm, designed by founders Sergey Brin and Larry Page, was designed to solve a similar problem: given a directed graph of websites, can one determine which sites are most relevant for a given query?
 Brin and Page's solution was to model the web as a random directed graph, and to imagine a \say{random surfer} who would randomly click on links (represented as directed edges from one site to the next).
 As this surfer traversed the web, she would be more likely to arrive at pages which had more inbound links; these pages were \textit{preferred}.
-Links from preferred pages are worth more than links from peripheral pages, as the popularity of the preferred page meant it was more likely that a surfer would be travel elsewhere via that page.
-\cite{brin} describes PageRank as follows:
 
-\begin{quotation}
-	\textit{We assume page A has pages T1...Tn which point to it (i.e., are citations).
-	The parameter d is a damping factor which can be set between 0 and 1.
-	We usually set d to 0.85.
-	There are more details about d in the next section.
-	Also C(A) is defined as the number of links going out of page A.
-	The PageRank of a page A is given as follows:}
-	
-	\bigskip
-		
-	PR(A) = (1-d) + d (PR(T1)/C(T1) + ... + PR(Tn)/C(Tn))
-	
-	\bigskip
-	
-	\textit{Note that the PageRanks form a probability distribution over web pages, so the sum of all web pages’ PageRanks will be one.
-	PageRank or PR(A) can be calculated using a simple iterative algorithm, and corresponds to the principal eigenvector of the normalized link matrix of the web.}
-\end{quotation}
+Links from preferred pages are worth more than links from peripheral pages, as the popularity of the preferred page meant it was more likely that a surfer would be travel elsewhere via that page.
+The PageRank algorithm is nearly identical to the eigenvector-finding techniques discussed above.
+The key difference is that PageRank does not include self-edges equal to the indegree of the node, except in the case where the outdegree of a node is $0$ (in order to keep the adjacency matrix full-rank).
+
+\bigskip
 
 The principle difference between the web graph of Brin and Page and the preference graphs we consider here is the variable value associated with the edges.
 On the web, a link is a link; there is no notion of a link being worth \say{more} or \say{less}, apart from the page the link originated from.
-
 In our case, edges have weight independent of the popularity of their corresponding nodes.
 We can naturally interpret this weight as the strength of the relative preference, and so should seek to allocate preference mass according to the strength of these preferences.
-Using the notation of Brin and Page, we introduce a new term $W(A, T_i) \in \mathbb{R}^+$, corresponding to the (normalized) weight of the edge from $A$ to $T_i$:
 
-\[
-W(A, T_i) \triangleq \frac{w(A, T_i)}{\sum_{j=1}^n w(A, T_j)}
-\]
+This introduces a complication, however, since the lack of self-edge makes it impossible to consider the popularity of a node when distributing mass away from itself.
+By restoring self-edges to the model, we avoid this problem.
 
-Now, we present a modified PageRank, which we call \textbf{PrefRank}:
+\bigskip
 
-\[
-PR(A) \leftarrow (1-d) + d \sum_{i=1}^n \frac{PR(T_i) \times W(A,T_i)}{C(T_i)}
-\]
-
-We use the right arrow instead of the equals sign to emphasize that this expression is an \textit{assignment}, updating the values associated with each node at each iteration.
-The normalization is important to ensure that the sum of the $PR$ scores remains constant over time.
-
-This approach differs from the eigenvector methods described earlier in that self-edges are not added.
+We present \textbf{PrefRank}, a extension of PageRank for preference graphs.
+PrefRank simply finds the principal eigenvector $v_1$ of a transition matrix $M$, with the results interpreted as a distribution of probabilities $v_1 \in \triangle^{V-1}$. 
 
 \subsubsection{Empirical Results}
 
-We evaluate this algorithm on simulated data as follows.
+We evaluate PrefRank on simulated data as follows.
 
 For $V$ items and preference strength $B$:
 
@@ -177,7 +156,13 @@ We assess quality of ordering with Spearman's footrule (as discussed in \cite{jo
 \label{fig:pr_0} 
 \end{figure}
 
-\subsection{Mixed-Membership Stochastic Blockmodel}
+We conclude that PrefRank is able to recover a large amount of preference structure.
+The quality of the structure recovered increases as the number of pairwise observations increases.
+Further, the stronger the underlying preference ($B$), the less data was needed to improve accuracy.
+These results are unsurprising but bode well.
+More work remains to determine under what circumstances and for what specific types of preference does PrefRank perform better.
+
+\subsection{Prototype}
 
 The complexity of the algorithms discussed above are all, in some form, $O(f(n))$.
 Finding some way of reducing $n$ would allow all of these techniques to be applied more quickly.
@@ -189,7 +174,7 @@ One way to reduce $n$ would be to identify elements of $V$ which are closely rel
 Identifying these prototypes is conceptually similar to identifying other types of graphical structures, such as communities in social networks.
 
 Community-finding is a major problem in computer science, and much work has been done on this problem.
-Here we present a model, based on the Mixed-Membership Stochastic Blockmodel (MMSB) of \cite{airoldi:2008}.
+Here we present \textbf{Prototype}, an extension of the Mixed-Membership Stochastic Blockmodel (MMSB) of \cite{airoldi:2008}.
 This is a ``Bayesian model'' in that we first assert a model for our data, in which latent factors (hidden variables) interact and ultimately bring about the data we observe.
 Inference in this model amounts to learning the optimal (``posterior'') values of these hidden variables, based on the data.
 
@@ -215,7 +200,7 @@ The generative process is as follows:
 \end{itemize}
 
 
-The MMSB we propose extends the work of \cite{airoldi:2008} by imposing symmetric structure on the matrix $B$.
+Prototype extends the work of \cite{airoldi:2008} by imposing symmetric structure on the matrix $B$.
 Specifically, we enforce that $B_{gh} = 1-B_{hg} \; \forall g,h$ (note that this implies $B_{gg}= 0.5 \; \forall g$).
 Unlike other mixed-membership stochastic blockmodels, which emphasize intra-community connective patterns, our model exclusively considers inter-community connective patterns.
 
@@ -270,7 +255,7 @@ Additional details of these derivations are given in Appendix \ref{sec:mmsb_appe
 
 \subsubsection{Empirical Results}
 
-We evaluated the MMSB model in three ways: on simulated data, on the MovieLens dataset, and on survey data.
+We evaluated Prototype in three ways: on simulated data, on film review data, and on survey data.
 
 \bigskip
 \textbf{Simulations}
@@ -312,6 +297,7 @@ We fit the model to 150 training observations and measured accuracy on the remai
 We varied K in the same way as before, and observed both more variable and overall weaker predictive accuracy, rarely surpassing 60\%.
 We conclude that this model is capable of capturing prototype interaction structure, but it will not perform well given small samples, weakly structured, or very noisy data.
 
+
 \begin{figure}
 \includegraphics[width=\textwidth]{images/pi}
 \includegraphics[width=\textwidth]{images/gamma}
@@ -319,12 +305,26 @@ We conclude that this model is capable of capturing prototype interaction struct
 \label{fig:pi_v_gamma} 
 \end{figure}
 
+
 \begin{figure}
 \centering
 \includegraphics[width=10cm]{images/interactions_med}
 \caption{Simulated interaction matrix, items sorted by most likely prototype, K=4, V=100, N=10000. The visible blocks show that items coming from similar prototypes interact in similar ways to items coming from other prototypes. The diagonal is gray, indicating that intra-prototype comparisons are 50/50 chance.}
 \label{fig:interactions_med} 
 \end{figure}
+
+
+\begin{figure}[!htb]
+\includegraphics[width=	7cm]{images/10k_5a_95b}
+\hfill
+\includegraphics[width=7cm]{images/10k_5a_8b}
+\includegraphics[width=	7cm]{images/2k_5a_95b}
+\hfill
+\includegraphics[width=7cm]{images/2k_5a_8b}
+\caption{Simulated interaction matrix, items sorted by most likely prototype, K=4, V=100 for all models. Top to bottom: N=1000,2500. Left to right: B = .95, .8}
+\label{fig:interactions_all} 
+\end{figure}
+
 
 \begin{figure}
 \centering
@@ -340,12 +340,14 @@ We conclude that this model is capable of capturing prototype interaction struct
 \label{fig:acc_movies} 
 \end{figure}
 
+
 \begin{figure}
 \centering
 \includegraphics[width=10cm]{images/interactions_beer}
-\caption{Beers interaction matrix, one user, items sorted by most likely prototype, K=3, V=27, N=1244}
+\caption{Beers interaction matrix, one user, items sorted by most likely prototype, K=3, V=27, N=1244. We see a transitive ordering of the three prototypes.}
 \label{fig:interactions_beer} 
 \end{figure}
+
 
 \begin{figure}
 \centering
@@ -358,6 +360,6 @@ We conclude that this model is capable of capturing prototype interaction struct
 2 & 0.89 & 0.11 & 0.50 \\
 \hline
 \end{tabular}
-\caption{B matrix for beer survey, one user. Ordering is transitive (1 < 2 < 0).}
+\caption{B matrix for beer survey, one user. Ordering is transitive ($1 < 2 < 0$).}
 \label{fig:B_beer} 
 \end{figure}

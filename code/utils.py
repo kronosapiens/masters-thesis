@@ -23,6 +23,19 @@ def gen_data(B, V, N, alpha=0.1):
         
     return X, pi
 
+
+def gen_data_pr(V, B, N):
+    X = np.zeros((N, 3), dtype=int)
+    for n in xrange(N):
+        p = q = np.random.randint(V)
+        while p == q:
+            q = np.random.randint(V)
+        p, q = sorted([p, q])
+        y = np.random.binomial(1, B)
+        X[n,:] = np.array([p,q,y])
+    return X
+
+
 def make_B(K, probs=[.2]):
     B = np.eye(K) / 2. # 0.5 on diagonal
     for g in xrange(B.shape[0]):

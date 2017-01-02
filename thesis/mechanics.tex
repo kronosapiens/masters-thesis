@@ -245,13 +245,7 @@ It is easy to see that this tournament has no universal sink.
 From the perspective of preference, we interpret a cycle as a set of items which are preferred equally; alternatively, we can say that they are \textit{indistinguishable} from each other.
 
 If there are $n$ vertices, then there are $n\choose{2}$ pairs.
-Since there are two possible states for each pair, there are a total of
-
-\[
-2^{n\choose{2}}
-\]
-
-possible graphs.
+Since there are two possible states for each pair, there are a total of $2^{n\choose{2}}$ possible graphs.
 As an illustration, let's consider a triple, where $n = 3$.For every triple of vertices, there are $2^3 = 8$ possible permutations of edges:
 
 \begin{center}
@@ -346,7 +340,7 @@ As discussed earlier, however, the likelihood of a universal sink existing in a 
 \bigskip
 
 We raise this point to underscore that the presence of cycles does not imply the absence of meaningful structure; simply that meaningful structure will be more challenging to discern.
-What is ``structure''?
+What is ``structure?''
 American mathematician Claude Shannon defined a measure of structure, known as \textit{entropy}, which applied to probability distributions of random variables (\cite{cover}):
 
 \[
@@ -365,7 +359,6 @@ A second possibility is to look at the \textit{tournament entropy} $H^*$, the en
 H^*(G) = -\sum_{u \in V} \frac{in(u)}{m}log\bigg(\frac{in(u)}{m}\bigg)
 \]
 
-Tournament entropy can be calculated in linear time.
 In the case of a three-node cycle, each node has an indegree of 1, equivalent to a uniform distribution over indegrees:
 
 \begin{center}
@@ -423,13 +416,57 @@ In the case of a three-node transitive preference, we see a skewed distribution:
 \end{tikzpicture}
 \end{center}
 
-In this case, the tournament entropy is 0.918 bits.
+In this case, the tournament entropy is lower, only 0.918 bits.
+
+\bigskip
+
+We note that tournament entropy can be calculated in linear time.
+Further, while this section has considered tournaments in which $m = {n\choose{2}}$ and every pair $\{u, v\}$ appears once, we can evaluate the tournament entropy of preference graphs with $m < {n\choose{2}}$ (graphs with partial observations), as well as thoughts with $m > {n\choose{2}}$ (graphs aggregating preferences of multiple entities).
+When evaluating tournament entropy for preference graphs with large $m$, additional care must be taken as the distribution of observations across the pairs may not be uniform.
 
 \subsection{A Linear Algebra View}
 
 A graph can be represented as a matrix, with the values of the matrix corresponding to the values of the edges between nodes.
 Let us denote the raw connection matrix as $C$.
-By setting the values of the diagonal equal to the sum of their corresponding columns ($C_{ii} = \sum_j C_{ji}$), and normalizing the rows of this matrix ($\sum_i C_{ji} = 1$), we can construct a Markovian \say{transition matrix}, denoted $M$ (Figure \ref{fig:linalg_0}).
+By setting the values of the diagonal equal to the sum of their corresponding columns ($C_{ii} = \sum_j C_{ji}$), and normalizing the rows of this matrix ($\sum_i C_{ji} = 1$), we can construct a Markovian \say{transition matrix}, denoted $M$:
+
+\begin{center}
+\begin{minipage}{1.2in}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\draw[ultra thick, ->] (b) -- (a);
+\draw[ultra thick, ->] (c) -- (b);
+\draw[ultra thick, ->] (c) -- (a);
+\end{tikzpicture}
+\end{minipage}
+\hfill
+\begin{minipage}{1.2in}
+\[
+C=
+  \begin{bmatrix}
+    0 & 0 & 0 \\
+    1 & 0 & 0 \\
+    1 & 1 & 0
+  \end{bmatrix}
+\]
+\end{minipage}
+\hfill
+\begin{minipage}{1.2in}
+\[
+M=
+  \begin{bmatrix}
+    1 & 0 & 0 \\
+    .5 & .5 & 0 \\
+    .5 & .5 & 0
+  \end{bmatrix}
+\]
+\end{minipage}
+\hfill
+\end{center}
+
+
 
 This matrix $M$ encodes the probability of ``transitioning'' from one item to another, with the values on the diagonal representing the likelihood of ``sticking with'' an item. 
 If we imagine a vector $x_t \in \triangle^{V-1}$ representing the state at time $t$ as a distribution over all possible items, then
@@ -443,7 +480,7 @@ If $M$ has certain properties (\textit{irreducible}, meaning that any item can b
 Further, it can be shown that this steady state distribution, denoted $x_{\infty}$, is equivalent to the principal eigenvector of the matrix $M$, here denoted $v_1$.
 The normalization of $M$ ensures that the principal eigenvector, denoted $\lambda_1$, is always equal to 1.
 
-Interpreting $x_{\infty}$ as a distribution over items, then the components of $x_{\infty}$ with the largest values (probability) can be seen as the ``most preferred'' items (\cite{paisley}).
+Interpreting $x_{\infty}$ as a distribution over items, then the components of $x_{\infty}$ with the largest values (probability) can be seen as the ``most preferred'' items.
 The Perron-Frobenius theorem forms the foundation of these results, and use of this method has a long history (\cite{keener:1993}) and many applications, including the ranking of sports teams (\cite{landau:1915}) and websites (\cite{brin}).
 
 \bigskip
