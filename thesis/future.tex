@@ -28,9 +28,20 @@ The promise here is great, however: were sufficiently efficient representations 
 The computational power of these platforms is currently limited, but if the history of computing is any indication (in 1977 the Apple II had RAM measured in kilobytes), they will grow in power over time.
 As such, methods of analysis too cumbersome to deploy today may find themselves surprisingly valuable in the years to come.
 
+\subsection{Specialized Access Policies}
+
+In our initial specification of preference graphs mechanics, we discussed the notion of an ``access policy'' governing the creation of preferences.
+The simplest access policy would allow any entity to create any preference between any pair of items at any time.
+This policy is highly open, but provides few safeguards against manipulation of the preference graph.
+Innovations in access policies have the potential to limit the extent to which preference graphs can be manipulated.
+
+One idea would be to incorporate a material cost to preference creation, disincentivizing  entities from creating frivolous preferences.
+A related idea would be to tie access to some sort of secondary criteria, such as the ownership of shares in a venture.
+In online environments, tying access to material conditions will likely be important in avoiding Sybil attacks \citep{danezis:2006}.
+
 \subsection{Item Pruning and Active Learning}
 
-As discussed earlier, given $n$ items there are $n(n-1)/2$ possible pairs.
+As discussed earlier, given $n$ items there are $n\choose{2}$ possible pairs.
 A larger number of items makes it more difficult to observe a sufficient number of preferences to accurately recover global preference structure.
 As such, techniques for either 1) reducing the number of items to be considered, or 2) identifying and observing critical pairs, would help make preference resolution easier for a large number of items.
 
@@ -53,7 +64,6 @@ More techniques for item pruning would allow for the more efficient analysis of 
 As said, $n$ items creates $n(n-1)/2$ possible pairs.
 In this work, we have assumed that preferences will be observed at random, but in practice it is unlikely that all pairs will be of equal importance in discovering preference structure.
 For example, if two items seems to be in general preferred over all other items, then we should prioritize learning the relative preference between those two items.
-
 This prioritization is known as ``active learning'' and there exists a large literature on the topic (\cite{shahriari:2016}).
 
 \subsection{Optimal Committee Discovery}
@@ -68,12 +78,12 @@ It would seem that instead of including the largest number of entities, we shoul
 	\item The variation in preference among these entities adequately covers the variation in preference found in the larger community.
 \end{enumerate} 
 
-We would expect preferences drawn from a committee with these properties would be more structured than preferences drawn from the larger community, and therefore easier to analyze and yeilding more legitimate conclusions.
+We would expect preferences drawn from a committee with these properties would be more structured than preferences drawn from the larger community, and therefore easier to analyze and yielding more legitimate conclusions.
 
 \bigskip
 
 The question becomes that of discovering these committees.
-One approach would be to pose a question to  all entities, and then consider only the subset of those entities whose preferences meet some criteria for minimal structure (such as having a maximum indegree exceeding some threshold).
+One approach would be to pose a question to  all entities, and then consider only the subset of those entities whose preferences meet some criteria for minimal structure (such as having a low tournament entropy or high maximum indegree).
 Another approach would be to pose a general question to all entities, and then select those entities whose preferences for the general question meet some criteria, and then put to them the new, more specific question.
 
 \subsection{Question Quality Assessment}
@@ -97,7 +107,7 @@ In the spirit of Arendt, we have attempted to lay groundwork for new mechanisms 
 
 This work has explored the question of large-scale nonviolent coordination, taking as its starting point new powerful communication and computational technologies.
 We found ourselves closely tracking the work of the social choice theorists, and incorporated ideas from machine learning to attempt to understand and solve those same problems.
-We presented a very general representation of preference, achieving the goal of accurately representing subjectivity while allowing for computational analysis.
+We presented a general representation of preference, achieving the goal of formalizing subjectivity.
 We then presented a number of algorithms, old and new, for analyzing these types of representations.
 
 \bigskip

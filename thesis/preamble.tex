@@ -4,8 +4,7 @@
 \usepackage{hyperref}
 \usepackage{subfig}
 
-
-\usepackage[style=authoryear]{biblatex}
+\usepackage[style=authoryear, natbib=true]{biblatex}
 \addbibresource{bibliography.bib}
 
 \usepackage[section]{placeins}
@@ -14,6 +13,10 @@
 \usepackage{pgfplots}
 \usetikzlibrary{positioning}
 \tikzset{roundnode/.style={circle, draw=black!60, fill=white!5, very thick, minimum size=10mm},}
+
+% Control TOC depth
+
+\setcounter{tocdepth}{2}
 
 % New Commands
 

@@ -5,14 +5,13 @@ Arrow's IIA criteria requires the consideration of local relationships only, but
 The graphical approach taken here relaxes this criterion and considers all items and preferences collectively.
 However, accounting for global relationships between nodes (relationships involving three or more nodes) is computationally challenging due to the rapid increase in the number of subsets to consider.
 For example, a graph of ten items has 45 pairs, 120 triples, and 210 sets of four.
-Fully accounting for all possible interactions among items will likely be computationally prohibitive for large graphs; as a result, techniques for approximately learning preference structure, or for pruning or otherwise constraining the number of items, will become valuable.
+Fully accounting for all possible interactions among items is currently computationally prohibitive for large graphs; as a result, techniques for approximately learning preference structure, or for pruning or otherwise constraining the number of items, will become valuable.
 
 \subsection{Linear-Time Methods}
 
 If a graph is not fully connected (some vertices lack edges), then it is possible for there to exist multiple sinks.
 If a graph is fully connected, however, then there can exist at most one sink.
-
-\textbf{Proof}: if there were two sinks, one must point towards the other: a contradiction $\rightarrow\leftarrow$.
+\footnote{\textbf{Proof}: if there are two sinks, one must point towards the other: contradiction $\rightarrow\leftarrow$.}
 
 The first example we will consider is the most fundamental of preference resolution systems: the \textbf{plurality voting system}.
 In this system, entities (which we will call voters) are allowed to vote for one of $n$ candidates, and the candidate with the most votes win.
@@ -41,15 +40,16 @@ We combine these into the following graph:
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
 \node [roundnode] (c) [below of=a] {c};
-\draw[ultra thick, -] (b) -- node[auto] {10 - 7} (a);
-\draw[ultra thick, -] (c) -- node[auto] {10 - 3} (a);
-\draw[ultra thick, -] (c) -- node[auto] {7 - 3} (b);
+\draw[ultra thick, ->] (b) to[bend right] node[below] {10} (a);
+\draw[ultra thick, ->] (a) -- node[below] {7} (b);
+\draw[ultra thick, ->] (c) to[bend right]  node[below] {7} (b);
+\draw[ultra thick, ->] (b) -- node[below] {3} (c);
+\draw[ultra thick, ->] (c) to[bend left]  node[left] {10} (a);
+\draw[ultra thick, ->] (a) -- node[right] {3} (c);
 \end{tikzpicture}
-\end{center}
-
-Then taking the differences and creating the directed edges:
-
-\begin{center}
+\hspace{5mm}
+\raisebox{2 cm}{$\rightarrow$}
+\hspace{5mm}
 \begin{tikzpicture}[node distance=3cm]
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
@@ -71,13 +71,16 @@ Let's say $b$ receives 10 votes:
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
 \node [roundnode] (c) [below of=a] {c};
-\draw[ultra thick, -] (b) -- node[auto] {10 - 10} (a);
-\draw[ultra thick, -] (c) -- node[auto] {10 - 3} (a);
-\draw[ultra thick, -] (c) -- node[auto] {10 - 3} (b);
+\draw[ultra thick, ->] (b) to[bend right] node[below] {10} (a);
+\draw[ultra thick, ->] (a) -- node[below] {10} (b);
+\draw[ultra thick, ->] (c) to[bend right]  node[below] {10} (b);
+\draw[ultra thick, ->] (b) -- node[below] {3} (c);
+\draw[ultra thick, ->] (c) to[bend left]  node[left] {10} (a);
+\draw[ultra thick, ->] (a) -- node[right] {3} (c);
 \end{tikzpicture}
-\end{center}
-
-\begin{center}
+\hspace{5mm}
+\raisebox{2 cm}{$\rightarrow$}
+\hspace{5mm}
 \begin{tikzpicture}[node distance=3cm]
 \node [roundnode] (a) {a};
 \node [roundnode] (b) [right of=a] {b};
@@ -96,20 +99,25 @@ Earlier, we showed how the preference resolution problem can be as simple as fin
 Without a guarantee of acyclicity, however, we must turn to alternative methods.
 Intuitively, we would like to say that a node which has a lot of incoming edges is preferred, even if that node possesses some number of outgoing edges.
 
+\bigskip
+
 The simplest approach in this vein would be rank items by the value of their incoming edges, with the winner being the item which satisfies $argmax_{v \in V}[in(v)]$.
 If the preferences are input as ordered rankings, this method is equivalent to the \textbf{Borda count} election system, a method used in practice by governments today (\cite{reilly:2002}).
 
 \bigskip
 
 A slight variation on this approach would be to take the difference of incoming and outgoing edges, and return the node with the largest difference.
-If preferences are input as ordered rankings of all items, this method is equivalent to the method of ranking only the incoming edges (for any pair, the sum of incoming and outgoing edges is always equal to the number of votes, therefore $argmax_{v \in V} [in(v) - out(v)] =  argmax_{v \in V}[in(v)]$).
+If preferences are input as ordered rankings of all items, this method is equivalent to the method of ranking only the incoming edges.\footnote{For any pair, the sum of incoming and outgoing edges is always equal to the number of votes, therefore $argmax_{v \in V} [in(v) - out(v)] = argmax_{v \in V}[in(v)]$)}
 If there is a different access policy, this method may return different results.
 
 These algorithms, which both run in $O(m + n)$ (linear) time, utilize local (pairwise) information between nodes, but incorporate no information about global relationships among nodes.
+Given highly structured access policies which constrain the resulting preference graph, these methods are satisfactory.
+Given less constrained access policies (in which pairwise preferences are observed at random), these methods will become less reliable, and global methods which incorporate all observed preferences will become necessary.
+As we will see, however, algorithms which incorporate global information will take much more than linear time to run.
 
 \subsection{PrefRank}
 
-Google's first PageRank algorithm, designed by founders Sergey Brin and Larry Page, was designed to solve a similar problem: given a directed graph of websites, can one determine which sites are most relevant for a given query?
+Google's first PageRank algorithm, designed by founders Sergey Brin and Larry Page, was designed to solve a problem very similar to that of preference resolution: given a directed graph of websites, can one determine which sites are most relevant for a given query?
 Brin and Page's solution was to model the web as a random directed graph, and to imagine a \say{random surfer} who would randomly click on links (represented as directed edges from one site to the next).
 As this surfer traversed the web, she would be more likely to arrive at pages which had more inbound links; these pages were \textit{preferred}.
 
@@ -130,7 +138,10 @@ By restoring self-edges to the model, we avoid this problem.
 \bigskip
 
 We present \textbf{PrefRank}, a extension of PageRank for preference graphs.
-PrefRank simply finds the principal eigenvector $v_1$ of a transition matrix $M$, with the results interpreted as a distribution of probabilities $v_1 \in \triangle^{V-1}$. 
+PrefRank simply finds the principal eigenvector $v_1$ of a transition matrix $M$, with the results interpreted as a distribution of probabilities $v_1 \in \triangle^{V-1}$.
+
+An eigenvector-based algorithm, our implementation of PrefRank finds $v_1$ using the power method. Each iteration of the power method runs in $O(n^2)$ time, and many iterations may be needed before convergence.
+As such, this method is significantly slower than the linear-time methods given above.
 
 \subsubsection{Empirical Results}
 
@@ -170,18 +181,19 @@ Finding some way of reducing $n$ would allow all of these techniques to be appli
 \bigskip
 
 One way to reduce $n$ would be to identify elements of $V$ which are closely related, and to collapse them into more general ``categories'' or ``prototypes,'' which can be treated as though they were single nodes in a graph.
-\cite{rosch:1973} provides theoretical justification for this approach, arguing that human cognition utilizes abstract ``prototypes'' in order to reason heuristically about the world.
+\citet{rosch:1973} provides theoretical justification for this approach, arguing that human cognition utilizes abstract ``prototypes'' in order to reason heuristically about the world.
 Identifying these prototypes is conceptually similar to identifying other types of graphical structures, such as communities in social networks.
 
 Community-finding is a major problem in computer science, and much work has been done on this problem.
-Here we present \textbf{Prototype}, an extension of the Mixed-Membership Stochastic Blockmodel (MMSB) of \cite{airoldi:2008}.
+We present \textbf{Prototype}, an extension of the Mixed-Membership Stochastic Blockmodel (MMSB) of \cite{airoldi:2008} designed to identify such prototypes among a large set of items.
+
 This is a ``Bayesian model'' in that we first assert a model for our data, in which latent factors (hidden variables) interact and ultimately bring about the data we observe.
 Inference in this model amounts to learning the optimal (``posterior'') values of these hidden variables, based on the data.
 
 \subsubsection{Model Specification}
 
 In this model, we assume each item is perceived as a mixture of one or more abstract ``prototypes''.
-We then assume there is a fixed ``interaction matrix'' $B$, governing preferences between prototypes, where $B_{gh}$ indicates that probability that an item of prototype $g$ is preferred over an item of prototype $h$.
+We then assume there is a fixed ``interaction matrix'' $B$, governing preferences between prototypes, where $B_{gh}$ indicates that probability that an item of prototype $h$ is preferred over an item of prototype $g$.
 
 \bigskip
 
@@ -200,7 +212,7 @@ The generative process is as follows:
 \end{itemize}
 
 
-Prototype extends the work of \cite{airoldi:2008} by imposing symmetric structure on the matrix $B$.
+Prototype extends the work of \citet{airoldi:2008} by imposing symmetric structure on the matrix $B$.
 Specifically, we enforce that $B_{gh} = 1-B_{hg} \; \forall g,h$ (note that this implies $B_{gg}= 0.5 \; \forall g$).
 Unlike other mixed-membership stochastic blockmodels, which emphasize intra-community connective patterns, our model exclusively considers inter-community connective patterns.
 
@@ -218,12 +230,12 @@ $B$ is a matrix of parameters, and so we learn posterior values via variational 
 
 \bigskip
 
-We first assume the following posterior ``$q$'' distributions $q(\pi_p), q(z_{p_n \rightarrow q_n})$, and $q(z_{q_n \rightarrow p_n})$:
+We first assume the following posterior ``$q$'' distributions:
 
 \begin{itemize}
-	\item $\pi_p \sim Dirichlet(\gamma_p)$
-	\item $z_{p_n \rightarrow q_n} \sim Multinomial(\phi_{p_n \rightarrow q_n})$
-	\item $z_{q_n \rightarrow p_n} \sim Multinomial(\phi_{q_n \rightarrow p_n})$
+	\item $q(\pi_p) \sim Dirichlet(\gamma_p)$
+	\item $q(z_{p_n \rightarrow q_n}) \sim Multinomial(\phi_{p_n \rightarrow q_n})$
+	\item $q(z_{q_n \rightarrow p_n}) \sim Multinomial(\phi_{q_n \rightarrow p_n})$
 \end{itemize}
 
 The essence of variational inference (specifically coordinate-ascent VI) is that we can learn the optimal distribution of each variable \textit{given the other variables}.
@@ -251,20 +263,30 @@ The update equations are as follows:
 }
 \]
 
+\bigskip
+
 Additional details of these derivations are given in Appendix \ref{sec:mmsb_appendix}.
+Every iteration of the CAVI algorithm has complexity $O(NK^2 + VK)$, again much slower than the linear-time methods.
 
 \subsubsection{Empirical Results}
 
 We evaluated Prototype in three ways: on simulated data, on film review data, and on survey data.
+Additional information on these data sources can be found in Appendix \ref{sec:datasets}.
 
 \bigskip
+
 \textbf{Simulations}
+
+\bigskip
 
 In order to validate our implementation and the validity of the model, we fit our MMSB to simulated data.
 For small-to-medium sized graphs, our implementation recovers (with some variation) the true prototype distributions $\pi$ and interaction matrix $B$, given enough observations. See Figures \ref{fig:pi_v_gamma} and \ref{fig:interactions_med}.
 
 \bigskip
+
 \textbf{MovieLens Data}
+
+\bigskip
 
 Given that the MovieLens dataset we work with is constructed based on the
 user ratings, the preferences we observe for a single user must be transitive.
@@ -285,12 +307,15 @@ movie to the prototype corresponding to its average rating; thus, having more
 than 5 prototypes is not useful.
 
 \bigskip
+
 \textbf{Survey Data}
 
-We fit the MMSB to a survey of beer preferences, first considering only the answers from the single opinionated user.
+\bigskip
+
+We fit Prototype to a survey of beer preferences, first considering only the answers from the single opinionated user.
 We fit the model to 900 training observations, and measured predictive accuracy on the remaining 344.
 We varied K, the number of prototypes, from 1 to 15, but found that predictive accuracy was very stable for K > 1, hovering around 78\%.
-With $K=3$, our model learned a transitive ordering of preferences among prototypes. See Figures \ref{fig:B_beer} and \ref{fig:interactions_beer}.
+With $K=3$, our model learned a transitive ordering of preferences among prototypes. See Figure \ref{fig:interactions_beer}.
 
 We next considered the answers coming from all other participants.
 We fit the model to 150 training observations and measured accuracy on the remaining 74.
@@ -306,14 +331,6 @@ We conclude that this model is capable of capturing prototype interaction struct
 \end{figure}
 
 
-\begin{figure}
-\centering
-\includegraphics[width=10cm]{images/interactions_med}
-\caption{Simulated interaction matrix, items sorted by most likely prototype, K=4, V=100, N=10000. The visible blocks show that items coming from similar prototypes interact in similar ways to items coming from other prototypes. The diagonal is gray, indicating that intra-prototype comparisons are 50/50 chance.}
-\label{fig:interactions_med} 
-\end{figure}
-
-
 \begin{figure}[!htb]
 \includegraphics[width=	7cm]{images/10k_5a_95b}
 \hfill
@@ -321,7 +338,7 @@ We conclude that this model is capable of capturing prototype interaction struct
 \includegraphics[width=	7cm]{images/2k_5a_95b}
 \hfill
 \includegraphics[width=7cm]{images/2k_5a_8b}
-\caption{Simulated interaction matrix, items sorted by most likely prototype, K=4, V=100 for all models. Top to bottom: N=1000,2500. Left to right: B = .95, .8}
+\caption{Simulated interaction matrix, items sorted by most likely prototype, K=4, V=100 for all models. Top to bottom: N=1000, 2500. Left to right: B = .95, .8. The visible blocks show that items coming from similar prototypes interact in similar ways to items coming from other prototypes. The diagonal is gray, indicating that intra-prototype comparisons are 50/50 chance.}
 \label{fig:interactions_all} 
 \end{figure}
 
@@ -336,21 +353,15 @@ We conclude that this model is capable of capturing prototype interaction struct
 \begin{figure}
 \centering
 \includegraphics[width=10cm]{images/acc_movies}
-\caption{Predictive accuracy against held-out data, 200 films and 20 users, function of number of prototypes. Accuracy plateaus at K = 4, indicating that the model is assigning each movie to a prototype corresponding to an average rating.}
+\caption{Predictive accuracy against held-out data, 200 films and 20 users, function of number of prototypes $K$. Accuracy plateaus at $K = 4$, suggesting that the model is assigning each movie to a prototype corresponding to an average rating.}
 \label{fig:acc_movies} 
 \end{figure}
 
 
 \begin{figure}
 \centering
-\includegraphics[width=10cm]{images/interactions_beer}
-\caption{Beers interaction matrix, one user, items sorted by most likely prototype, K=3, V=27, N=1244. We see a transitive ordering of the three prototypes.}
-\label{fig:interactions_beer} 
-\end{figure}
-
-
-\begin{figure}
-\centering
+\includegraphics[width=9cm]{images/interactions_beer}
+\hfill\raisebox{3cm}{
 \begin{tabular}{ | c | c c c | }
 \hline
 & 0 & 1 & 2 \\ 
@@ -360,6 +371,7 @@ We conclude that this model is capable of capturing prototype interaction struct
 2 & 0.89 & 0.11 & 0.50 \\
 \hline
 \end{tabular}
-\caption{B matrix for beer survey, one user. Ordering is transitive ($1 < 2 < 0$).}
-\label{fig:B_beer} 
+}
+\caption{Interaction matrix (left) and B matrix (right) for beer preferences, one user, items sorted by most likely prototype, K=3, V=27, N=1244. We see a transitive ordering of the three prototypes ($1 < 2 < 0$).}
+\label{fig:interactions_beer} 
 \end{figure}

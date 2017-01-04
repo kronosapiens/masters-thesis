@@ -44,12 +44,12 @@ Having introduced questions, answers, and entities, we are ready to introduce th
 	\item An entity $e \in E$.
 	\item A candidate answer $\alpha \in A$.
 	\item A second candidate answer $\beta \in A$.
-	\item The preference $p \in \{-1, 1\}$, where $1$ corresponds to preferring $\alpha$.
+	\item The preference $p \in \{0, 1\}$, where $0$ corresponds to preferring $\alpha$.
 \end{enumerate}
 
 It is not immediately obvious how we might operate on this representation. Recalling that preferences are only defined relative to a question $Q$, we can make $Q$ implicit. Further, for the moment let us assume that we are interested only in the preferences of a single entity $e$.
 
-Now, we see that the salient attributes of a preference are the two options $\alpha, \beta$, as well as the preference $p$. If we imagine $\alpha$ and $\beta$ as nodes, then $p$ can be represented as a directed edge between the two. Specifically, we create an edge $(\beta, \alpha)$ if $p = -1$ or $(\alpha, \beta)$ if $p = 1$ (the edge flows from loser to winner):
+Now, we see that the salient attributes of a preference are the two options $\alpha, \beta$, as well as the preference $p$. If we imagine $\alpha$ and $\beta$ as nodes, then $p$ can be represented as a directed edge between the two. Specifically, we create an edge $(\beta, \alpha)$ if $p = 0$ or $(\alpha, \beta)$ if $p = 1$ (the edge flows from loser to winner):
 
 \begin{center}
 \begin{tikzpicture}[node distance=3cm]
@@ -59,7 +59,7 @@ Now, we see that the salient attributes of a preference are the two options $\al
 \end{tikzpicture}
 \end{center}
 
-This graphical representation is desirable, as it suggests a natural way of aggregating preference. Imagine we have $A = \{a, b, c, d\}$. The entity generates the following preferences:
+This graphical representation is desirable, as it suggests a natural way of aggregating preference. Imagine we have $A = \{a, b, c, d\}$, and an entity $e$ generates the following preferences:
 
 \begin{center}
 \socrata{a}{b}
@@ -130,8 +130,6 @@ Parallel edges sum, while antiparallel edges cancel:
 \end{tikzpicture}
 \end{center}
 
-We denote this weight $w(u,v) \in \mathbb{N}^+$.
-
 It is instructive to see what occurs in the instance of two entities with opposing preferences.
 Say we $\alpha$ with preferences $(a, b, c)$, and $\beta$ with preferences $(c, b, a)$.
 We might say we could resolve this by selecting $b$, as this seems the mutually-agreeable option.
@@ -190,7 +188,7 @@ In our case, there are ${n}\choose{2}$ possible pairs per graph.
 Further, we see that $max_{u \in V}in(u) = n - 1$.
 
 A vertex can be called a \textit{universal sink} if it has $in(u) = n - 1$.
-In the context of preference, a sink is an option that is preferred over all others.
+In the context of preference, a universal sink is an option that is preferred over all others.
 As a first pass, we can think of the problem of resolving preference as a problem of finding a universal sink, which can be found in O(n) time.
 
 It might seem as the problem of preference resolution is simple: observe preferences, and find the universal sink.
@@ -211,8 +209,6 @@ In this discussion, we will repurpose this notation to describe a different type
 We will show that as $n$ increases, the likelihood of a universal sink existing in a random tournament decreases exponentially.
 Every vertex has $n-1$ edges.
 For vertex $u$, to be a universal sink, all of these edges must point towards it.
-
-
 If we consider a random tournament $G^*(n,p)$, then
 
 \[
@@ -585,4 +581,4 @@ Note that the eigenvector-based methods described earlier imply IIA relaxation.
 \label{fig:impossiblity_graphs} 
 \end{figure}
 
-
+Here we see how the language of preference graphs clarifies the dynamics involved in social choice.
