@@ -173,11 +173,11 @@ Formally, if we think of $L$ as our objective function, and $f$ being an analysi
 L(f^*(X)) \geq L(f(X))
 \]
 
-$\forall f \in$ \gls{F}, with \gls{F} representing \textit{the set of all possible analyses}.
+$\forall f \in \mathcal{F}$, with $\mathcal{F}$ representing \textit{the set of all possible analyses}.
 When $L$ is some type of error metric, we are likely optimizing some (potentially convex) function.
 When $L$ is a type of likelihood, we are likely performing some form of statistical parameter estimation.
-The role of $L$ is important, in that it is often the derivatives of $L$ that allows us to explore \gls{F}.
-Much research in these fields can be seen as concerning itself with 1) developing new methods for exploring \gls{F}, and 2) developing new functions $L$ to facilitate progress with (1).
+The role of $L$ is important, in that it is often the derivatives of $L$ that allows us to explore $\mathcal{F}$.
+Much research in these fields can be seen as concerning itself with 1) developing new methods for exploring $\mathcal{F}$, and 2) developing new functions $L$ to facilitate progress with (1).
 
 \subsubsection{Measurement}
 
@@ -200,13 +200,13 @@ In this example, it is easy to see how the critical factor was not change in the
 
 \bigskip
 
-Formally, let us think of a representation $r \in$ \gls{R} as a process applied to the world $Y$, resulting in some objective measurement (data) $X \triangleq r(Y)$.
+Formally, let us think of a representation $r \in \mathcal{R}$ as a process applied to the world $Y$, resulting in some objective measurement (data) $X \triangleq r(Y)$.
 The world is always at least as complex as the measurement (consider the example of a map vs a territory: a perfect map would necessarily be the size of the entire territory).
 Most measurements are therefore information-discarding; our goal is therefore to find the measurement which discards the least information.
 
 \bigskip
 
-Given two measurements $r_1, r_2 \in$ \gls{R}, if $r_1$ captures more information, then:
+Given two measurements $r_1, r_2 \in \mathcal{R}$, if $r_1$ captures more information, then:
 
 \[
 I(Y; r_1(Y)) > I(Y; r_2(Y)).
@@ -233,7 +233,7 @@ We can think of the process of transformation as applying a function
 g: X \rightarrow X^\prime
 \]
 
-$g \in$ \gls{G}, which maps representation $X$ to $X^\prime$.
+$g \in \mathcal{G}$, which maps representation $X$ to $X^\prime$.
 If this function is \textit{injective} (or \say{one-to-one}), then both representations contain the same amount of information.
 The conversion between graphs and matrices is an example of this type of transformation.
 
@@ -247,7 +247,7 @@ Formally, we can say that
 I(Y; X) \geq I(Y; g(X))
 \]
 
-$\forall g \in$ \gls{G}. With this result in hand, it may seems like transforming between symbolic representations is pointless.
+$\forall g \in \mathcal{G}$. With this result in hand, it may seems like transforming between symbolic representations is pointless.
 However, it may be the case that a transformed representation permits analysis in away the original does not.
 
 Analysis of text often falls in this category.
@@ -327,7 +327,7 @@ Incorporating notation from earlier, we are ultimately interested in functions $
 U(f_g^*(r^*(Y))) \geq U(f_g(r(Y)))
 \]
 
-$\forall r \in$ \gls{R},  $\forall f_g \in \mathcal{F}_g$. Ranging across all $g$ and $f$, we see that for each task-specific utility $U$, it may always be possible to develop some new $r^*$ such that:
+$\forall r \in \mathcal{R}$,  $\forall f_g \in \mathcal{F}_g$. Ranging across all $g$ and $f$, we see that for each task-specific utility $U$, it may always be possible to develop some new $r^*$ such that:
 
 \[
 U(f_g(r^*(Y))) \geq U(f_g(r(Y))).
@@ -360,7 +360,19 @@ If the original data has special structure which can be exploited, compression c
 In other cases, as first shown by Johnson and Lindenstrauss, random data compression can occur with acceptable loss of information \citep{dasgupta}.
 
 The takeaway is that compression is more effective when it can exploit any \textit{special structure} of the object in the original space.
-In the context of this argument, we will say that \textit{measurement is more effective when the representation captures accurately any special structure of the aspect of the world being measured}.
+In the context of this argument, we conclude that \textit{measurement is more effective when the representation captures accurately any special structure of the aspect of the world being measured}.
+
+\bigskip
+
+\fbox{\begin{minipage}{30em}
+\textbf{Glossary}
+
+$\mathcal{R}$: Set of all measurement processes $r: Y \rightarrow X$
+
+$\mathcal{G}$: Set of all transformations $g: X \rightarrow X^\prime$
+
+$\mathcal{F}$: Set of all analyses $f: X \rightarrow f(X)$
+\end{minipage}}
 
 \subsection{Economic History}
 
