@@ -23,6 +23,8 @@ The resiliency and legitimacy of the BBVM platform, however, make these types of
 
 The large-scaled redundancy of computation on these platforms (all computations must be carried out by all nodes) means that any analysis run on these platforms will needs be of limited complexity.
 This is a major constraint, and motivates the search for more efficient representations and analysis.
+It is illustrative that the primary application of these technologies to date has been the creation of ``cryptocurrencies''.
+The implementation of cryptocurrencies are computationally simple, requiring little more than constant-time ($O(1)$) arithmetic operations on floating-point numbers.
 
 The promise here is great, however: were sufficiently efficient representations and analysis discovered, it would be possible to deploy applications which autonomously and legitimately coordinate activity  in a highly non-hierarchical way, without appealing to individual (and therefore susceptible to coercion or exploitation) leadership.
 The computational power of these platforms is currently limited, but if the history of computing is any indication (in 1977 the Apple II had RAM measured in kilobytes), they will grow in power over time.
@@ -39,10 +41,14 @@ One idea would be to incorporate a material cost to preference creation, disince
 A related idea would be to tie access to some sort of secondary criteria, such as the ownership of shares in a venture.
 In online environments, tying access to material conditions will likely be important in avoiding Sybil attacks \citep{danezis:2006}.
 
+Returning to the earlier discussion of the role of price as a low-dimensional representation of economic information, we note that prices are set via an energy-intensive bargaining process, in which participants are well-incentivized to arrive at optimal prices.
+It is easy to see how prices set at random would be of much less value; consequently, we can safely conclude that the value of preference data will be tightly linked to the incentive structure accompanying their creation.
+
 \subsection{Item Pruning and Active Learning}
 
 As discussed earlier, given $n$ items there are $n\choose{2}$ possible pairs.
-A larger number of items makes it more difficult to observe a sufficient number of preferences to accurately recover global preference structure.
+An attractive property of preference graphs is that the item set $V$ is dynamic, and new items can be created in real-time \citep{salganik:2015}.
+A larger number of items, however, makes it more difficult to observe a sufficient number of preferences to accurately recover global preference structure.
 As such, techniques for either 1) reducing the number of items to be considered, or 2) identifying and observing critical pairs, would help make preference resolution easier for a large number of items.
 
 \subsubsection{Item Pruning}
@@ -71,11 +77,12 @@ This prioritization is known as ``active learning'' and there exists a large lit
 Throughout this work, we have implicitly assumed that larger numbers of entities leads to better, more legitimate decisions.
 While this assumption is defensible when considering questions of an abstract or ethical nature (``what is our greatest value'', or ``how should we balance the budget''), this assumption is less defensible when considering technical questions (``how can we improve our energy infrastructure'', or ``which subcontractors should we hire to for this construction project'').
 For questions requiring technical expertise, large numbers of non-specialized entities would have noisy and high-entropy (uninformative) preference structure.
-It would seem that instead of including the largest number of entities, we should instead seek to assemble a subset of entities (a ``committee'') with the following two properties:
+It would seem that instead of including the largest number of entities, we should instead seek to assemble a subset of entities (a ``committee'') with the following three properties:
 
 \begin{enumerate}
 	\item All entities possess sufficient expertise to be able to make meaningful distinctions between items (nonrandom preference structure).
 	\item The variation in preference among these entities adequately covers the variation in preference found in the larger community.
+	\item The committee is small enough that meaningful social relations can be developed between the members \citep{dunbar:1992}.
 \end{enumerate} 
 
 We would expect preferences drawn from a committee with these properties would be more structured than preferences drawn from the larger community, and therefore easier to analyze and yielding more legitimate conclusions.
@@ -83,8 +90,9 @@ We would expect preferences drawn from a committee with these properties would b
 \bigskip
 
 The question becomes that of discovering these committees.
-One approach would be to pose a question to  all entities, and then consider only the subset of those entities whose preferences meet some criteria for minimal structure (such as having a low tournament entropy or high maximum indegree).
+One approach would be to pose a question to  all entities, and then consider only the subset of those entities whose preferences meet some criteria for minimal structure (such as having a low tournament entropy or high $||v_1||_2$).
 Another approach would be to pose a general question to all entities, and then select those entities whose preferences for the general question meet some criteria, and then put to them the new, more specific question.
+Grouping could be done using the per-entity $v_1$, using a clustering algorithm like K-Nearest Neighbors, or by looking at cosine similarity.
 
 \subsection{Question Quality Assessment}
 
@@ -95,6 +103,12 @@ Following this reasoning, higher-quality questions are those which give rise to 
 
 If we had two candidate questions $Q_1, Q_2$, and the same set of candidate answers, we could identify objectively the ``better'' question by seeing which question gave rise to more structured preferences.
 It is interesting and encouraging to observe how the mechanics of preference graphs given in this work allow us to learn not only the relations between items, but the relations between questions.
+
+\subsection{Preference Databases}
+
+The simple and consistent representation of the pairwise preference lends itself well to the development of large, longitudinal preference databases.
+One could imagine a general question (``what do you look for most in a partner'') being posed for an extended period of time, with answers being generated by many entities.
+Assuming that each preference is accompanied by appropriate metadata, these preference databases would become a rich and versatile source of data, comparable to standard surveys such as the General Social Survey.
 
 \subsection{Conclusions}
 

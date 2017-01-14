@@ -198,7 +198,7 @@ Unfortunately, there is no guarantee that a universal sink will exist.
 
 To show this, we will extend the $G(n,p)$ notation of Erd{\H o}s to the tournament graphs of \cite{landau:1953}.
 A $G(n,p)$ graph is a random undirected graph of $n$ nodes, with the probability $p$ of an edge existing between any two nodes.
-In this discussion, we will repurpose this notation to describe a different type of graph, a \textit{random tournament} $G^*(n,p)$, generated as follows:
+In this discussion, we will repurpose this notation to describe a different type of graph, a \textit{random tournament} $G_T(n,p)$, generated as follows:
 
 \begin{enumerate}
 	\item Create a complete graph of $n$ nodes.
@@ -209,7 +209,7 @@ In this discussion, we will repurpose this notation to describe a different type
 We will show that as $n$ increases, the likelihood of a universal sink existing in a random tournament decreases exponentially.
 Every vertex has $n-1$ edges.
 For vertex $u$, to be a universal sink, all of these edges must point towards it.
-If we consider a random tournament $G^*(n,p)$, then
+If we consider a random tournament $G_T(n,p)$, then
 
 \[
 p(u_{usink}) = \prod_{v \in (V / \{u\})}p((u,v) \in E) = \frac{1}{2^{n-1}}
@@ -349,10 +349,10 @@ This metric has proven invaluable: what analogous metrics might we develop for t
 One possibility is the \textit{maximum indegree}, $max_{u \in V}in(u)$.
 This metric can be calculated in $O(m + n)$ (linear time), and provides a rough sense of the amount of structure of the graph.
 
-A second possibility is to look at the \textit{tournament entropy} $H^*$, the entropy of the empirical distribution of the indegrees of tournament $G$:
+A second possibility is to look at the \textit{tournament entropy} $H_T$, the entropy of the empirical distribution of the indegrees of tournament $G$:
 
 \[
-H^*(G) = -\sum_{u \in V} \frac{in(u)}{m}log\bigg(\frac{in(u)}{m}\bigg)
+H_T(G) = -\sum_{u \in V} \frac{in(u)}{m}log\bigg(\frac{in(u)}{m}\bigg)
 \]
 
 In the case of a three-node cycle, each node has an indegree of 1, equivalent to a uniform distribution over indegrees:
@@ -478,6 +478,44 @@ The normalization of $M$ ensures that the principal eigenvector, denoted $\lambd
 
 Interpreting $x_{\infty}$ as a distribution over items, then the components of $x_{\infty}$ with the largest values (probability) can be seen as the ``most preferred'' items.
 The Perron-Frobenius theorem forms the foundation of these results, and use of this method has a long history (\cite{keener:1993}) and many applications, including the ranking of sports teams (\cite{landau:1915}) and websites (\cite{brin}).
+
+\bigskip
+
+It is worth discussing some interesting attributes of the principal eigenvector $v_1$.
+First, by definition, $||v_1||_1$ (the $L_1$ norm) is equal to 1.
+However, $||v_1||_2$ (the $L_2$ norm), varies.
+Further, for $v_1$ with dimension $n$, $min(||v_1||_2^2) = n/n^2$, corresponding to a uniform preference over all items, and $max(||v_1||_2) = 1$, corresponding to a clear single preference.
+
+\begin{proof}
+As $||x||_2^2 \triangleq \sum x_i^2$, it will suffice to show that for any $\alpha \in \mathbb{R}, \epsilon > 0$,
+
+\[
+\bigg(\frac{1}{\alpha} + \epsilon\bigg)^2
++ \bigg(\frac{1}{\alpha} - \epsilon\bigg)^2
+> \frac{2}{\alpha^2}.
+\]
+
+This is easily shown:
+
+\[
+\frac{1}{\alpha^2} + \frac{2\epsilon}{\alpha} + \epsilon^2
++ \frac{1}{\alpha^2} - \frac{2\epsilon}{\alpha} + \epsilon^2
+ > \frac{2}{\alpha^2}
+\]
+
+\[
+\frac{2}{\alpha^2} + 2\epsilon^2
+ > \frac{2}{\alpha^2}
+\]
+
+\[
+2\epsilon^2 > 0
+\]
+\end{proof}
+
+This result suggests that $||v_1||_2$ can serve as an alternative measure of preference structure, with larger values implying more structured preference.
+Further, for multiple entities, comparisons of entity-specific $v_1$ may be interpretable as comparisons of preference (entities with smaller distances between $v_1$ have more similar preferences, etc).
+More work remains to be done understanding the specific behavior of $v_1$ and possible applications as a measure of preference structure beyond the standard application as a ranking.
 
 \bigskip
 

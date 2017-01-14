@@ -163,8 +163,16 @@ We assess quality of ordering with Spearman's footrule (as discussed in \cite{jo
 \includegraphics[width=	7cm]{images/pr_100}
 \hfill
 \includegraphics[width=7.2cm]{images/pr_1000}
-\caption{Spearman footrule as a function of number of observations, varying preference strengths B. Left plot is V=100, right is V=1000.}
+\caption{Spearman footrule as a function of number of random observations $N$ and a transitive ordering, varying preference strengths B.}
 \label{fig:pr_0} 
+\end{figure}
+
+\begin{figure}[!htb]
+\includegraphics[width=	7cm]{images/pr_iter_001}
+\hfill
+\includegraphics[width=7cm]{images/pr_iter_0001}
+\caption{Number of iterations to convergence (given a full set of non-random observations and a transitive ordering) as a function of number of items $|V|$. The left-hand graph suggests that a larger $n$ requires a lower convergence threshold, as the values will necessarily be smaller.}
+\label{fig:pr_1} 
 \end{figure}
 
 We conclude that PrefRank is able to recover a large amount of preference structure.

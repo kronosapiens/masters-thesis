@@ -29,7 +29,7 @@ M=
 \draw [ultra thick, ->] (O) -- (X) node[right]{$v_1$};
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a two-node transitive preference. Steady state achieved after one iteration.}
+\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a two-node transitive preference. $||v_1||_2^2 = 1$. Steady state achieved after one iteration.}
 \label{fig:linalg_1} 
 \end{figure}
 
@@ -67,7 +67,7 @@ M=
 \draw [ultra thick, ->] (O) -- (X) node[right]{$v_1$};
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a two-node cycle. Intuitively, we set the probability of each item equal to the average of the prior preferences. The normalizing restriction on $x$ ensures that these averages continue to represent a distribution over the items. Note also that the steady state (a uniform distribution) is achieved after only one iteration.}
+\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a two-node cycle. $||v_1||_2^2 = 1/2$. Intuitively, we set the probability of each item equal to the average of the prior preferences. The normalizing restriction on $x$ ensures that these averages continue to represent a distribution over the items. Note also that the steady state (a uniform distribution) is achieved after only one iteration.}
 \label{fig:linalg_2} 
 \end{figure}
 
@@ -109,7 +109,7 @@ M=
 \draw [ultra thick, ->] (O) -- (X) node[right]{$v_1$};
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node transitive preference. In this case, the steady state is achieved in the limit. At every iteration, C sends its probability mass to A and B evenly, and has no mass after the first iteration. B splits its mass between itself and A, while A directs all of its mass towards itself. The limiting convergence is due to the logarithmic reallocation of mass from B to A (a bit of a Zeno-style paradox).}
+\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node transitive preference. $||v_1||_2^2 = 1$. In this case, the steady state is achieved in the limit. At every iteration, C sends its probability mass to A and B evenly, and has no mass after the first iteration. B splits its mass between itself and A, while A directs all of its mass towards itself. The limiting convergence is due to the logarithmic reallocation of mass from B to A (a bit of a Zeno-style paradox).}
 \label{fig:linalg_3} 
 \end{figure}
 
@@ -154,7 +154,7 @@ M=
 \draw [dashed, color=red] (X) -- (Xxy);
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node cycle. Here the reallocation of probability mass across iterations exhibits more complex dynamics, and converges to $v_1$ in the limit.}
+\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node cycle. $||v_1||_2^2 = 1/3$. Here the reallocation of probability mass across iterations exhibits more complex dynamics, and converges to $v_1$ in the limit.}
 \label{fig:linalg_4} 
 \end{figure}
 
@@ -202,7 +202,7 @@ M=
 \draw [dashed, color=red] (X) -- (Xxy);
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node double cycle.}
+\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node double cycle. $||v_1||_2^2 = 1/3$}
 \label{fig:linalg_5} 
 \end{figure}
 
@@ -249,6 +249,6 @@ M=
 \draw [dashed, color=red] (X) -- (Xxy);
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node cycle with edge weights. Note how the introduction of variable weights repositions $v_1$ within the simplex, allowing us to recover a transitive ordering $a > b > c$.}
+\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node cycle with edge weights. $||v_1||_2^2 = 0.4048 \approx 2/5$. Note how the introduction of variable weights repositions $v_1$ within the simplex, allowing us to recover a transitive ordering $a > b > c$.}
 \label{fig:linalg_6} 
 \end{figure}

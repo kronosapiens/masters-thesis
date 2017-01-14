@@ -1,4 +1,4 @@
-\subsection{Details of Prototype Derivation}
+\subsection{Prototype Derivation}
 \label{sec:mmsb_appendix}
 
 \subsubsection{Joint probability and ELBO}
@@ -73,6 +73,25 @@ Setting this expression to $0$, and solving for $B_{gh}$, gives the following cl
 \begin{eqnarray*}
 \hat{B}_{gh} = \frac{\sum_{n=1}^N \phi_{p_n \rightarrow q_n, g} \phi_{q_n \rightarrow p_n, h} y_n + \phi_{p_n \rightarrow q_n, h} \phi_{q_n \rightarrow p_n, g}(1-y_n)}{\sum_{n=1}^N \phi_{p_n \rightarrow q_n, g} \phi_{q_n \rightarrow p_n, h} + \phi_{p_n \rightarrow q_n, h} \phi_{q_n \rightarrow p_n, g}}
 \end{eqnarray*}
+
+\subsection{Algorithm Implementations}
+\label{sec:implementation}
+
+Code for all algorithms can be found at:
+
+\begin{verbatim}
+https://github.com/kronosapiens/thesis	
+\end{verbatim}
+
+\subsubsection{PrefRank}
+
+PrefRank was implemented in Python and NumPy.
+PrefRank uses the power method to find the principal eigenvector $v_1$, iterating until the change in vector dips below a preset threshold. 
+
+\subsubsection{Prototype}
+
+Prototype was implemented in Python, using NumPy and pandas.
+Prototype uses the nested coordinate-ascent variational inference algorithm given in \cite{airoldi:2008}, with the number of iterations fixed in advance.
 
 \subsection{Datasets}
 \label{sec:datasets}
