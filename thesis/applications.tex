@@ -171,7 +171,7 @@ We assess quality of ordering with Spearman's footrule (as discussed in \cite{jo
 \includegraphics[width=	7cm]{images/pr_iter_001}
 \hfill
 \includegraphics[width=7cm]{images/pr_iter_0001}
-\caption{Number of iterations to convergence (given a full set of non-random observations and a transitive ordering) as a function of number of items $|V|$. The left-hand graph suggests that a larger $n$ requires a lower convergence threshold, as the values will necessarily be smaller.}
+\caption{Number of iterations to convergence (given a full set of non-random observations and a transitive ordering) as a function of number of items $|V|$. Initial vector is uniform. The left-hand graph suggests that a larger $n$ requires a lower convergence threshold, as the values will necessarily be smaller.}
 \label{fig:pr_1} 
 \end{figure}
 
@@ -311,8 +311,8 @@ We see in Figure \ref{fig:acc_movies} that the heldout accuracy of the
 MMSB plateaus at around $76\%$ when trained on the data from 30 users.
 Adding more prototypes, beyond $K=4$, does not improve the
 performance of the model. This suggests that the model is simply assigning each
-movie to the prototype corresponding to its average rating; thus, having more
-than 5 prototypes is not useful.
+movie to the prototype corresponding to its average rating (and further that there are relatively few movies rated a 1); thus, having more
+than 4 or 5 prototypes is not useful.
 
 \bigskip
 
@@ -322,7 +322,7 @@ than 5 prototypes is not useful.
 
 We fit Prototype to a survey of beer preferences, first considering only the answers from the single opinionated user.
 We fit the model to 900 training observations, and measured predictive accuracy on the remaining 344.
-We varied K, the number of prototypes, from 1 to 15, but found that predictive accuracy was very stable for K > 1, hovering around 78\%.
+We varied K, the number of prototypes, from 1 to 15, but found that predictive accuracy was very stable for $K > 1$, hovering around 78\%.
 With $K=3$, our model learned a transitive ordering of preferences among prototypes. See Figure \ref{fig:interactions_beer}.
 
 We next considered the answers coming from all other participants.
@@ -380,6 +380,6 @@ We conclude that this model is capable of capturing prototype interaction struct
 \hline
 \end{tabular}
 }
-\caption{Interaction matrix (left) and B matrix (right) for beer preferences, one user, items sorted by most likely prototype, K=3, V=27, N=1244. We see a transitive ordering of the three prototypes ($1 < 2 < 0$).}
+\caption{Interaction matrix (left) and B matrix (right) for beer preferences, one user, items sorted by most likely prototype, K=3, V=27, N=1244. We see a transitive ordering of the three prototypes ($1 < 2 < 0$). It is unclear, however, how the items comprising the prototypes should be interpreted.}
 \label{fig:interactions_beer} 
 \end{figure}

@@ -490,22 +490,22 @@ Further, for $v_1$ with dimension $n$, $min(||v_1||_2^2) = n/n^2$, corresponding
 As $||x||_2^2 \triangleq \sum x_i^2$, it will suffice to show that for any $\alpha \in \mathbb{R}, \epsilon > 0$,
 
 \[
-\bigg(\frac{1}{\alpha} + \epsilon\bigg)^2
-+ \bigg(\frac{1}{\alpha} - \epsilon\bigg)^2
-> \frac{2}{\alpha^2}.
+(\alpha + \epsilon)^2
++ (\alpha - \epsilon)^2
+> 2\alpha^2.
 \]
 
 This is easily shown:
 
 \[
-\frac{1}{\alpha^2} + \frac{2\epsilon}{\alpha} + \epsilon^2
-+ \frac{1}{\alpha^2} - \frac{2\epsilon}{\alpha} + \epsilon^2
- > \frac{2}{\alpha^2}
+\alpha^2 + 2\alpha\epsilon + \epsilon^2
++ \alpha^2 - 2\alpha\epsilon + \epsilon^2
+ > 2\alpha^2
 \]
 
 \[
-\frac{2}{\alpha^2} + 2\epsilon^2
- > \frac{2}{\alpha^2}
+2\alpha^2 + 2\epsilon^2
+ > 2\alpha^2
 \]
 
 \[
@@ -515,19 +515,19 @@ This is easily shown:
 
 This result suggests that $||v_1||_2$ can serve as an alternative measure of preference structure, with larger values implying more structured preference.
 Further, for multiple entities, comparisons of entity-specific $v_1$ may be interpretable as comparisons of preference (entities with smaller distances between $v_1$ have more similar preferences, etc).
+Unlike tournament entropy, this measure incorporate global information about the preference graph (as $v_1$ incorporates global information); however, this measure cannot be calculated in linear time.
 More work remains to be done understanding the specific behavior of $v_1$ and possible applications as a measure of preference structure beyond the standard application as a ranking.
 
 \bigskip
 
 With these concepts in hand, we can now ask what these steady states might look like for a series of simple preference graphs (Figures \ref{fig:linalg_1}, \ref{fig:linalg_2}, \ref{fig:linalg_3}, \ref{fig:linalg_4}, \ref{fig:linalg_5}, \ref{fig:linalg_6}).
+This series of basic examples illustrate how the language of graphs and matrices allows us to make meaningful statements about preference in the presence of challenging structures like cycles, which manifest as contradictions when represented in terms of linear ordering.
 
 % BEGIN LINALG FIGURES
 
 \input{linalg_figures}
 
 % END LINALG FIGURES
-
-This series of basic examples illustrate how the language of graphs and matrices allows us to make meaningful statements about preference in the presence of challenging structures like cycles, which manifest as contradictions when represented in terms of linear ordering.
 
 \FloatBarrier
 
