@@ -29,7 +29,7 @@ M=
 \draw [ultra thick, ->] (O) -- (X) node[right]{$v_1$};
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a two-node transitive preference. $||v_1||_2^2 = 1$. Steady state achieved after one iteration.}
+\caption{Preference graph $G$, transition matrix $M$, and principal eigenvector $v_1$ for a two-node transitive preference. $||v_1||_2^2 = 1$, $H_T(G) = 0$. Steady state achieved after one iteration.}
 \label{fig:linalg_1} 
 \end{figure}
 
@@ -67,7 +67,7 @@ M=
 \draw [ultra thick, ->] (O) -- (X) node[right]{$v_1$};
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a two-node cycle. $||v_1||_2^2 = 1/2$. Intuitively, we set the probability of each item equal to the average of the prior preferences. The normalizing restriction on $x$ ensures that these averages continue to represent a distribution over the items. Note also that the steady state (a uniform distribution) is achieved after only one iteration.}
+\caption{Preference graph $G$, transition matrix $M$, and principal eigenvector $v_1$ for a two-node cycle. $||v_1||_2^2 = 1/2$, $H_T(G) = 1$. Intuitively, we set the probability of each item equal to the average of the prior preferences. The normalizing restriction on $v$ ensures that these averages continue to represent a distribution over the items. Note also that the steady state (a uniform distribution) is achieved after only one iteration.}
 \label{fig:linalg_2} 
 \end{figure}
 
@@ -109,7 +109,7 @@ M=
 \draw [ultra thick, ->] (O) -- (X) node[right]{$v_1$};
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node transitive preference. $||v_1||_2^2 = 1$. In this case, the steady state is achieved in the limit. At every iteration, C sends its probability mass to A and B evenly, and has no mass after the first iteration. B splits its mass between itself and A, while A directs all of its mass towards itself. The limiting convergence is due to the logarithmic reallocation of mass from B to A (a bit of a Zeno-style paradox).}
+\caption{Preference graph $G$, transition matrix $M$, and principal eigenvector $v_1$ for a three-node transitive preference. $||v_1||_2^2 = 1$, $H_T(G) = 0.918$. In this case, the steady state is achieved in the limit. At every iteration, C sends its probability mass to A and B evenly, and has no mass after the first iteration. B splits its mass between itself and A, while A directs all of its mass towards itself. The limiting convergence is due to the logarithmic reallocation of mass from B to A (a bit of a Zeno-style paradox).}
 \label{fig:linalg_3} 
 \end{figure}
 
@@ -154,7 +154,7 @@ M=
 \draw [dashed, color=red] (X) -- (Xxy);
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node cycle. $||v_1||_2^2 = 1/3$. Here the reallocation of probability mass across iterations exhibits more complex dynamics, and converges to $v_1$ in the limit.}
+\caption{Preference graph $G$, transition matrix $M$, and principal eigenvector $v_1$ for a three-node cycle. $||v_1||_2^2 = 1/3$, $H_T(G) = 1.585$. Here the reallocation of probability mass across iterations exhibits more complex dynamics, and converges to $v_1$ in the limit.}
 \label{fig:linalg_4} 
 \end{figure}
 
@@ -202,7 +202,7 @@ M=
 \draw [dashed, color=red] (X) -- (Xxy);
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node double cycle. $||v_1||_2^2 = 1/3$}
+\caption{Preference graph $G$, transition matrix $M$, and principal eigenvector $v_1$ for a three-node double cycle. $||v_1||_2^2 = 1/3$, $H_T(G) = 1.585$}
 \label{fig:linalg_5} 
 \end{figure}
 
@@ -249,6 +249,123 @@ M=
 \draw [dashed, color=red] (X) -- (Xxy);
 \end{tikzpicture}
 \end{minipage}
-\caption{Preference graph, transition matrix $M$, and corresponding principal eigenvector $v_1$ for a three-node cycle with edge weights. $||v_1||_2^2 = 0.4048 \approx 2/5$. Note how the introduction of variable weights repositions $v_1$ within the simplex, allowing us to recover a transitive ordering $a > b > c$.}
+\caption{Preference graph $G$, transition matrix $M$, and principal eigenvector $v_1$ for a three-node cycle with edge weights. $||v_1||_2^2 = 0.4049$, $H_T(G) = 1.371$. Note how the introduction of variable weights repositions $v_1$ within the simplex, allowing us to recover a transitive ordering $a > b > c$.}
 \label{fig:linalg_6} 
+\end{figure}
+
+
+\begin{figure}[!htb] % Four node two cycle
+\centering
+\begin{minipage}{1.2in}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\node [roundnode] (d) [below of=b] {d};
+\draw[ultra thick, ->] (a) -- (c);
+\draw[ultra thick, ->] (b) -- (a);
+\draw[ultra thick, ->] (c) -- (b);
+\draw[ultra thick, ->] (d) -- (a);
+\draw[ultra thick, ->] (d) -- (b);
+\draw[ultra thick, ->] (c) -- (d);
+\end{tikzpicture}
+\end{minipage}
+\hfill
+\begin{minipage}{1.2in}
+\[
+M=
+  \begin{bmatrix}
+    .66 & 0 & .33 & 0 \\
+    .33 & .66 & 0 & 0 \\
+    0 & .33 & .33 & .33 \\
+    .33 & .33 & 0 & .33
+  \end{bmatrix}
+\]
+\end{minipage}
+\hfill
+\begin{minipage}{1.2in}
+\[
+(.4, .3, .2, .1)
+\]
+\end{minipage}
+\caption{Preference graph $G$, transition matrix $M$, and principal eigenvector $v_1$ for a four-node graph with two cycles. $||v_1||_2^2 = 0.3$, $H_T(G) = 1.918$.}
+\label{fig:linalg_7} 
+\end{figure}
+
+
+\begin{figure}[!htb] % Four node upper cycle
+\centering
+\begin{minipage}{1.2in}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\node [roundnode] (d) [below of=b] {d};
+\draw[ultra thick, ->] (a) -- (c);
+\draw[ultra thick, ->] (c) -- (b);
+\draw[ultra thick, ->] (b) -- (a);
+\draw[ultra thick, ->] (d) -- (a);
+\draw[ultra thick, ->] (d) -- (b);
+\draw[ultra thick, ->] (d) -- (c);
+\end{tikzpicture}
+\end{minipage}
+\hfill
+\begin{minipage}{1.2in}
+\[
+M=
+  \begin{bmatrix}
+    .66 & 0 & .33 & 0 \\
+    .33 & .66 & 0 & 0 \\
+    0 & .33 & .66 & 0 \\
+    .33 & .33 & .33 & 0
+  \end{bmatrix}
+\]
+\end{minipage}
+\hfill
+\begin{minipage}{1.2in}
+\[
+(.33, .33, .33, 0)
+\]
+\end{minipage}
+\caption{Preference graph $G$, transition matrix $M$, and principal eigenvector $v_1$ for a four-node graph with one cycle. $||v_1||_2^2 = 1/3$, $H_T(G) = 1.585$. Note that we see a cycle in $v_1$, despite having a larger $L_2$ value than the previous example.}
+\label{fig:linalg_8} 
+\end{figure}
+
+
+\begin{figure}[!htb] % Four node lower cycle
+\centering
+\begin{minipage}{1.2in}
+\begin{tikzpicture}[node distance=3cm]
+\node [roundnode] (a) {a};
+\node [roundnode] (b) [right of=a] {b};
+\node [roundnode] (c) [below of=a] {c};
+\node [roundnode] (d) [below of=b] {d};
+\draw[ultra thick, ->] (b) -- (a);
+\draw[ultra thick, ->] (c) -- (a);
+\draw[ultra thick, ->] (d) -- (a);
+\draw[ultra thick, ->] (b) -- (c);
+\draw[ultra thick, ->] (c) -- (d);
+\draw[ultra thick, ->] (d) -- (b);
+\end{tikzpicture}
+\end{minipage}
+\hfill
+\begin{minipage}{1.2in}
+\[
+M=
+  \begin{bmatrix}
+    1 & 0 & 0 & 0 \\
+    .33 & .33 & .33 & 0 \\
+    .33 & 0 & .33 & .33 \\
+    .33 & .33 & 0 & .33
+  \end{bmatrix}
+\]
+\end{minipage}
+\hfill
+\begin{minipage}{1.2in}
+\[
+(1, 0, 0, 0)
+\]
+\end{minipage}
+\caption{Preference graph $G$, transition matrix $M$, and principal eigenvector $v_1$ for a four-node graph with one cycle. $||v_1||_2^2 = 1$, $H_T(G) = 1.793$. Note how the presence of a cycle in the lower nodes does not prevent the graph from having high level of structure.}
+\label{fig:linalg_9} 
 \end{figure}

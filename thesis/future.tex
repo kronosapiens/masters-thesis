@@ -42,7 +42,7 @@ A related idea would be to tie access to some sort of secondary criteria, such a
 In online environments, tying access to material conditions will likely be important in avoiding Sybil attacks \citep{danezis:2006}.
 
 Returning to the earlier discussion of the role of price as a low-dimensional representation of economic information, we note that prices are set via an energy-intensive bargaining process, in which participants are well-incentivized to arrive at optimal prices.
-It is easy to see how prices set at random would be of much less value; our historical experience with stock market irrationality strongly suggests that this is the case \citep{minsky}.
+Inversely, it is easy to see how prices set at random would be of much less value; our historical experience with stock market irrationality strongly suggests that this is the case \citep{minsky}.
 Consequently, we seem justified in concluding that the value of preference data will be tightly linked to the incentive structure accompanying their generation.
 
 \subsection{Item Pruning and Active Learning}
@@ -95,7 +95,7 @@ One approach would be to pose a question to  all entities, and then consider onl
 Another approach would be to pose a general question to all entities, and then select those entities whose preferences for the general question meet some criteria, and then put to them the new, more specific question.
 Grouping could be done using the per-entity $v_1$, using a clustering algorithm like K-Nearest Neighbors, or by looking at cosine similarity.
 
-\subsection{Question Quality Assessment}
+\subsection{Question Assessment}
 
 The notion of ``structure'' of preference makes it possible to empirically measure the ``quality'' of a question, with high-quality questions giving rise to highly structured preferences.
 In an extreme case, a question consisting of nonsense letters would be expected to lead to completely unstructured answers: entities either abstaining or indicating preferences at random.
